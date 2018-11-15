@@ -1,19 +1,27 @@
 from flask import Flask, request
-from pymongo import MongoClient
+import shelve, json, uuid
 
 app = Flask(__name__)
-client = MongoClient()
-db = client.thing_directory
-things = db.things
 
-
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
+@app.route('/things', methods=['GET'])
+def get_all():
+    s = shelve.open('things.db')
+    ids = list(s.keys())
+    s.close()
+    response = {
+        "ids": ids
+    }
+    return json.dumps(response)
 
 @app.route('/things/register', methods=['POST'])
 def register():
     # Needs to validate input
-    data = request.get_json()
-    _id = things.insert(data)
-    return str(_id)
+    s = shelve.open('things.db')
+    data_json = request.get_json()
+    new_uuid = uuid.uuid4().hex
+    s[new_uuid] = data_json
+    s.close()
+    response = {
+        "id": new_uuid
+    }
+    return (json.dumps(response), 201, None)
