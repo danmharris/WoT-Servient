@@ -13,6 +13,19 @@ def get_all():
     }
     return json.dumps(response)
 
+@app.route('/things/<uuid>', methods=['GET'])
+def get_by_id(uuid):
+    s = shelve.open('things.db')
+    try:
+        thing = s[uuid]
+        s.close()
+        return json.dumps(thing)
+    except:
+        response = {
+            "message": "Thing does not exist"
+        }
+        return (json.dumps(response), 404, None)
+
 @app.route('/things/register', methods=['POST'])
 def register():
     # Needs to validate input
