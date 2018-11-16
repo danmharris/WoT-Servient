@@ -26,8 +26,22 @@ def get_by_id(uuid):
 def register():
     # Needs to validate input
     new_thing = Thing(request.get_json())
-    new_uuid = new_thing.save()
+    new_thing.save()
     response = {
-        "id": new_uuid
+        "id": new_thing.uuid
     }
     return (json.dumps(response), 201, None)
+
+@app.route('/things/<uuid>/groups', methods=['POST'])
+def add_group(uuid):
+    body = request.get_json()
+    try:
+        db_thing = Thing.get_by_uuid(uuid=uuid)
+    except Exception as err:
+        return (json.dumps(err.message), 404, None)
+    db_thing.add_group(body['group'])
+    db_thing.save()
+    response = {
+        "message": "updated"
+    }
+    return (json.dumps(response), 200, None)
