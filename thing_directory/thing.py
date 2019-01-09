@@ -1,19 +1,17 @@
-import shelve, json, uuid
+import dbm, json, uuid
 
 class Thing:
     @staticmethod
-    def get_by_uuid(uuid):
-        s = shelve.open('things.db')
+    def get_by_uuid(s, uuid):
         try:
             thing = s[uuid]
-            return Thing(thing, uuid)
+            return Thing(s, thing, uuid)
         except:
             raise Exception({
                 "message": "Thing not found",
             })
-        finally:
-            s.close()
-    def __init__(self, schema = {}, uuid= uuid.uuid4().hex):
+    def __init__(self, dbh, schema = {}, uuid= uuid.uuid4().hex):
+        self.dbh = dbh
         self.schema = schema
         self.uuid = uuid
     def add_group(self, group):
@@ -27,11 +25,8 @@ class Thing:
         else:
             return []
     def save(self):
-        s = shelve.open('things.db')
-        s[self.uuid] = self.schema
-        s.close()
+        self.dbh[self.uuid] = self.schema
     def delete(self):
-        s = shelve.open('things.db')
-        del s[self.uuid]
+        del self.dbh[self.uuid]
     def get_json(self):
         return json.dumps(self.schema)
