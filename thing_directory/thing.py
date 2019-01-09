@@ -6,7 +6,7 @@ class Thing:
         s = shelve.open('things.db')
         try:
             thing = s[uuid]
-            return Thing(uuid, thing)
+            return Thing(thing, uuid)
         except:
             raise Exception({
                 "message": "Thing not found",
@@ -21,6 +21,11 @@ class Thing:
             self.schema['groups'].append(group)
         else:
             self.schema.update({ "groups": [group]})
+    def get_groups(self):
+        if 'groups' in self.schema:
+            return self.schema['groups']
+        else:
+            return []
     def save(self):
         s = shelve.open('things.db')
         s[self.uuid] = self.schema
