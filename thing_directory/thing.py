@@ -30,5 +30,8 @@ class Thing:
         s = shelve.open('things.db')
         s[self.uuid] = self.schema
         s.close()
+    def delete(self):
+        s = shelve.open('things.db')
+        del s[self.uuid]
     def get_json(self):
         return json.dumps(self.schema)

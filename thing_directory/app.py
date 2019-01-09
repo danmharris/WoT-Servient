@@ -20,7 +20,7 @@ def get_by_id(uuid):
         db_thing = Thing.get_by_uuid(uuid=uuid)
         return db_thing.get_json()
     except Exception as err:
-        return (json.dumps(err), 404, None)
+        return (str(err), 404, None)
 
 @app.route('/things/query', methods=['GET'])
 def query():
@@ -55,10 +55,22 @@ def add_group(uuid):
     try:
         db_thing = Thing.get_by_uuid(uuid=uuid)
     except Exception as err:
-        return (json.dumps(err.message), 404, None)
+        return (str(err), 404, None)
     db_thing.add_group(body['group'])
     db_thing.save()
     response = {
         "message": "updated"
     }
     return (json.dumps(response), 200, None)
+
+@app.route('/things/<uuid>', methods=['DELETE'])
+def delete_thing(uuid):
+    try:
+        db_thing = Thing.get_by_uuid(uuid=uuid)
+        db_thing.delete()
+        response = {
+            "message": "deleted"
+        }
+        return (json.dumps(response), 200, None)
+    except Exception as err:
+        return (str(err), 404, None)
