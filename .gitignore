@@ -1,2 +1,5 @@
 *.log
 *.swp
+venv/
+__pycache__/
+*.db
