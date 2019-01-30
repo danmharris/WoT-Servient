@@ -1,5 +1,6 @@
 from flask import Flask
-import directory
+from thing_directory import directory
+from common.db import close_db
 
 def create_app(app_config=None):
     app = Flask(__name__)
@@ -8,4 +9,5 @@ def create_app(app_config=None):
     else:
         app.config.from_mapping(app_config)
     app.register_blueprint(directory.bp)
+    app.teardown_appcontext(close_db)
     return app

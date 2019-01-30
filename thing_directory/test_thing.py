@@ -1,13 +1,34 @@
-from thing import Thing
+from thing_directory.thing import Thing
 import pytest
 
 def test_constructor_given_args():
     """ Tests that the constructor sets fields based on arguments """
-    thing = Thing('placeholder dbh', {'property': 'value'}, '123')
+    thing = Thing('placeholder dbh', {'name': 'thing', 'properties': {'status': '1'}, 'events':{'heat':'test'}, 'actions':{'toggle':'test'}}, '123')
     assert thing.dbh == 'placeholder dbh'
     assert thing.schema == {
-        'property': 'value'
+        'name': 'thing'
     }
+    assert thing.properties == {
+        'status': '1'
+    }
+    assert thing.events == {
+        'heat': 'test'
+    }
+    assert thing.actions == {
+        'toggle': 'test'
+    }
+    assert thing.uuid == '123'
+
+def test_constructor_given_args_missing():
+    """ Tests that the constructor sets fields based on arguments, with the properties/actions/events blank as not provided """
+    thing = Thing('placeholder dbh', {'name': 'thing'}, '123')
+    assert thing.dbh == 'placeholder dbh'
+    assert thing.schema == {
+        'name': 'thing'
+    }
+    assert thing.properties == {}
+    assert thing.events == {}
+    assert thing.actions == {}
     assert thing.uuid == '123'
 
 def test_constructor_default_args():
@@ -15,6 +36,9 @@ def test_constructor_default_args():
     thing = Thing('dbh')
     assert thing.dbh == 'dbh'
     assert thing.schema == {}
+    assert thing.properties == {}
+    assert thing.events == {}
+    assert thing.actions == {}
     assert thing.uuid != None
 
 def test_constructor_missing_dbh():
@@ -60,6 +84,13 @@ def test_get_groups_present():
 def test_get_groups_empty():
     """ Tests getting groups when there are none """
     thing = Thing('', {}, '123')
+    assert thing.get_groups() == []
+
+def test_del_group():
+    """ Tests deleting a group """
+    thing = Thing('', {'groups': ['living room']}, '123')
+    assert thing.get_groups() == ['living room']
+    thing.del_group('living room')
     assert thing.get_groups() == []
 
 def test_save():
