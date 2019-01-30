@@ -1,5 +1,5 @@
-from flask import Blueprint, current_app, request
-import shelve, json, uuid
+from flask import Blueprint, current_app, request, jsonify
+import shelve, uuid
 from thing import Thing
 
 bp = Blueprint('directory', __name__)
@@ -12,14 +12,14 @@ def get_all():
     response = {
         "ids": ids
     }
-    return json.dumps(response)
+    return jsonify(response)
 
 @bp.route('/things/<uuid>', methods=['GET'])
 def get_by_id(uuid):
     s = shelve.open(current_app.config['DB'])
     try:
         db_thing = Thing.get_by_uuid(s, uuid=uuid)
-        response = db_thing.get_json()
+        response = jsonify(db_thing.schema)
     except Exception as err:
         response = (str(err), 404, None)
     finally:
@@ -41,7 +41,7 @@ def query():
         except Exception:
             continue
     s.close()
-    return json.dumps(matching)
+    return jsonify(matching)
 
 @bp.route('/things/register', methods=['POST'])
 def register():
@@ -53,7 +53,7 @@ def register():
         "id": new_thing.uuid
     }
     s.close()
-    return (json.dumps(response), 201, None)
+    return (jsonify(response), 201, None)
 
 @bp.route('/things/<uuid>/groups', methods=['POST'])
 def add_group(uuid):
@@ -70,7 +70,7 @@ def add_group(uuid):
         "message": "updated"
     }
     s.close()
-    return (json.dumps(response), 200, None)
+    return (jsonify(response), 200, None)
 
 @bp.route('/things/<uuid>', methods=['DELETE'])
 def delete_thing(uuid):
@@ -78,7 +78,7 @@ def delete_thing(uuid):
     try:
         db_thing = Thing.get_by_uuid(s, uuid=uuid)
         db_thing.delete()
-        response = (json.dumps({"message": "deleted"}), 200, None)
+        response = (jsonify({"message": "deleted"}), 200, None)
     except Exception as err:
         response = (str(err), 404, None)
     finally:
