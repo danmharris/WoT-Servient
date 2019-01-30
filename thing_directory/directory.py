@@ -9,10 +9,11 @@ bp = Blueprint('directory', __name__, url_prefix='/things')
 def get_all():
     s = get_db()
     ids = list(s.keys())
-    response = {
-        "ids": ids
-    }
-    return jsonify(response)
+    results = {}
+    for id in ids:
+        thing = Thing.get_by_uuid(s, id)
+        results[thing.uuid] = thing.schema
+    return jsonify(results)
 
 @bp.route('/<uuid>', methods=['GET'])
 def get_by_id(uuid):
@@ -30,13 +31,13 @@ def query():
     req_groups = request.args.get('groups').split(',')
     s = get_db()
     uuids = list(s.keys())
-    matching = []
+    matching = {}
     for id in uuids:
         try:
             thing = Thing.get_by_uuid(s, id)
             groups = thing.get_groups()
             if len(set(groups).intersection(req_groups)) > 0:
-                matching.append(thing.schema)
+                matching[thing.uuid] = thing.schema
         except Exception:
             continue
     return jsonify(matching)

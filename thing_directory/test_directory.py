@@ -34,7 +34,13 @@ def test_things(client):
     response = client.get('/things')
     assert response.status_code == 200
     assert response.get_json() == {
-        'ids': ['123','456']
+        '123': {
+            'name':'test'
+        },
+        '456': {
+            'name':'test2',
+            'groups':['group1']
+        }
     }
 
 def test_thing_uuid(client):
@@ -55,18 +61,19 @@ def test_query_groups(client):
     """ Test /things/query GET request with match """
     response = client.get('/things/query?groups=group1')
     assert response.status_code == 200
-    assert response.get_json() == [
-        {
+    print(response.get_json())
+    assert response.get_json() == {
+        '456': {
             'name': 'test2',
             'groups': ['group1']
         }
-    ]
+    }
 
 def test_query_groups_none(client):
     """ Test /things/query with no match """
     response = client.get('/things/query?groups=group2')
     assert response.status_code == 200
-    assert response.get_json() == []
+    assert response.get_json() == {}
 
 def test_register(client):
     """ Test /things/register POST endpoint """
@@ -107,13 +114,13 @@ def test_add_group_404(client):
 def test_delete(client):
     """ Test /things/<uuid> DELETE request """
     initial_response = client.get('/things')
-    assert '123' in initial_response.get_json()['ids']
+    assert '123' in initial_response.get_json()
     delete_response = client.delete('/things/123')
     assert delete_response.get_json() == {
         'message': 'deleted'
     }
     new_response = client.get('/things')
-    assert '123' not in new_response.get_json()['ids']
+    assert '123' not in new_response.get_json()
 
 def test_delete_404(client):
     """ Test /things/<uuid> DELETE request where thing doesnt exist """
