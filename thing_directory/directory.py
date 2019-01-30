@@ -2,9 +2,9 @@ from flask import Blueprint, current_app, request, jsonify
 import shelve, uuid
 from thing import Thing
 
-bp = Blueprint('directory', __name__)
+bp = Blueprint('directory', __name__, url_prefix='/things')
 
-@bp.route('/things', methods=['GET'])
+@bp.route('', methods=['GET'])
 def get_all():
     s = shelve.open(current_app.config['DB'])
     ids = list(s.keys())
@@ -14,7 +14,7 @@ def get_all():
     }
     return jsonify(response)
 
-@bp.route('/things/<uuid>', methods=['GET'])
+@bp.route('/<uuid>', methods=['GET'])
 def get_by_id(uuid):
     s = shelve.open(current_app.config['DB'])
     try:
@@ -26,7 +26,7 @@ def get_by_id(uuid):
         s.close()
         return response
 
-@bp.route('/things/query', methods=['GET'])
+@bp.route('/query', methods=['GET'])
 def query():
     req_groups = request.args.get('groups').split(',')
     s = shelve.open(current_app.config['DB'])
@@ -43,7 +43,7 @@ def query():
     s.close()
     return jsonify(matching)
 
-@bp.route('/things/register', methods=['POST'])
+@bp.route('/register', methods=['POST'])
 def register():
     # Needs to validate input
     s = shelve.open(current_app.config['DB'])
@@ -55,7 +55,7 @@ def register():
     s.close()
     return (jsonify(response), 201, None)
 
-@bp.route('/things/<uuid>/groups', methods=['POST'])
+@bp.route('/<uuid>/groups', methods=['POST'])
 def add_group(uuid):
     body = request.get_json()
     s = shelve.open(current_app.config['DB'])
@@ -72,7 +72,7 @@ def add_group(uuid):
     s.close()
     return (jsonify(response), 200, None)
 
-@bp.route('/things/<uuid>', methods=['DELETE'])
+@bp.route('/<uuid>', methods=['DELETE'])
 def delete_thing(uuid):
     s = shelve.open(current_app.config['DB'])
     try:
