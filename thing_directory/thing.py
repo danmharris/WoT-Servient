@@ -39,6 +39,9 @@ class Thing:
             return self.schema['groups']
         else:
             return []
+    def del_group(self, group):
+        if 'groups' in self.schema:
+            self.schema['groups'] = [g for g in self.schema['groups'] if g != group]
     def save(self):
         self.dbh[self.uuid] = self.schema
     def delete(self):

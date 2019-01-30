@@ -141,6 +141,22 @@ def test_add_group_404(client):
     assert response.status_code == 404
     assert response.data == b"{'message': 'Thing not found'}"
 
+def test_delete_group(client):
+    """ Test /things/<uuid>/groups<group> removes a group """
+    initial_response = client.get('/things/456')
+    assert initial_response.get_json()['groups'] == ['group1']
+    response = client.delete('/things/456/groups/group1')
+    assert response.get_json() == {
+        'message': 'group removed'
+    }
+    new_response = client.get('/things/456')
+    assert new_response.get_json()['groups'] == []
+
+def test_delete_group_404(client):
+    """ Test /things/<uuid>/groups/<group> 404s on nonexistent UUID """
+    response = client.delete('/things/abc/groups/test')
+    assert response.status_code == 404
+
 def test_delete(client):
     """ Test /things/<uuid> DELETE request """
     initial_response = client.get('/things')

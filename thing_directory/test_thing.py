@@ -86,6 +86,13 @@ def test_get_groups_empty():
     thing = Thing('', {}, '123')
     assert thing.get_groups() == []
 
+def test_del_group():
+    """ Tests deleting a group """
+    thing = Thing('', {'groups': ['living room']}, '123')
+    assert thing.get_groups() == ['living room']
+    thing.del_group('living room')
+    assert thing.get_groups() == []
+
 def test_save():
     """ Tests that saving updates the database object """
     s = {}

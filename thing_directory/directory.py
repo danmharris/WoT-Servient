@@ -89,6 +89,19 @@ def add_group(uuid):
     }
     return (jsonify(response), 200, None)
 
+@bp.route('/<uuid>/groups/<group>', methods=['DELETE'])
+def del_group(uuid, group):
+    s = get_db()
+    try:
+        db_thing = Thing.get_by_uuid(s, uuid=uuid)
+        db_thing.del_group(group)
+        db_thing.save()
+        return jsonify({
+            'message': 'group removed'
+        })
+    except Exception as err:
+        return (str(err), 404, None)
+
 @bp.route('/<uuid>', methods=['DELETE'])
 def delete_thing(uuid):
     s = get_db()
