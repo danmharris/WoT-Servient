@@ -12,6 +12,21 @@ class Thing:
             })
     def __init__(self, dbh, schema = {}, uuid= uuid.uuid4().hex):
         self.dbh = dbh
+        if 'properties' in schema:
+            self.properties = schema['properties']
+            del schema['properties']
+        else:
+            self.properties = {}
+        if 'events' in schema:
+            self.events = schema['events']
+            del schema['events']
+        else:
+            self.events = {}
+        if 'actions' in schema:
+            self.actions = schema['actions']
+            del schema['actions']
+        else:
+            self.actions = {}
         self.schema = schema
         self.uuid = uuid
     def add_group(self, group):

@@ -57,6 +57,36 @@ def test_thing_uuid_404(client):
     assert response.status_code == 404
     assert response.data == b"{'message': 'Thing not found'}"
 
+def test_thing_properties(client):
+    """ Test /things/<uuid>/properties GET request """
+    response = client.get('/things/123/properties')
+    assert response.status_code == 200
+    assert response.get_json() == data['123']['properties']
+
+def test_thing_properties_empty(client):
+    """ Test /things/<uuid>/properties GET request """
+    response = client.get('/things/456/properties')
+    assert response.status_code == 200
+    assert response.get_json() == {}
+
+def test_thing_properties_404(client):
+    """ Test /things/<uuid>/properties GET request on non existent thing """
+    response = client.get('/things/abc/properties')
+    assert response.status_code == 404
+    assert response.data == b"{'message': 'Thing not found'}"
+
+def test_thing_events(client):
+    """ Test /things/<uuid>/events GET request """
+    response = client.get('/things/123/events')
+    assert response.status_code == 200
+    assert response.get_json() == data['123']['events']
+
+def test_thing_actions(client):
+    """ Test /things/<uuid>/actions GET request """
+    response = client.get('/things/123/actions')
+    assert response.status_code == 200
+    assert response.get_json() == data['123']['actions']
+
 def test_query_groups(client):
     """ Test /things/query GET request with match """
     response = client.get('/things/query?groups=group1')
