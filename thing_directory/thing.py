@@ -1,4 +1,4 @@
-import dbm, json, uuid
+import dbm, uuid
 
 class Thing:
     @staticmethod
@@ -28,5 +28,3 @@ class Thing:
         self.dbh[self.uuid] = self.schema
     def delete(self):
         del self.dbh[self.uuid]
-    def get_json(self):
-        return json.dumps(self.schema)

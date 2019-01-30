@@ -84,8 +84,3 @@ def test_delete_not_present():
     thing = Thing(s, {'property': 'value'}, '123')
     with pytest.raises(KeyError):
         thing.delete()
-
-def test_get_json():
-    """ Tests that get_json returns the parsed schema """
-    thing = Thing('', {'property': 'value'}, '123')
-    assert thing.get_json() == '{"property": "value"}'
