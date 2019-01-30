@@ -1,4 +1,4 @@
-from thing import Thing
+from thing_directory.thing import Thing
 import pytest
 
 def test_constructor_given_args():

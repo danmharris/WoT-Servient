@@ -1,5 +1,6 @@
-from app import create_app
-from data import data
+from thing_directory.app import create_app
+from thing_directory.data import data
+from common.db import get_db, close_db
 import pytest
 import tempfile
 import shelve
@@ -14,10 +15,11 @@ def app():
         'DB': db_path
     })
 
-    s = shelve.open(db_path)
-    for key in data:
-        s[key] = data[key]
-    s.close()
+    with app.app_context():
+        s = get_db()
+        for key in data:
+            s[key] = data[key]
+        close_db()
 
     yield app
 
