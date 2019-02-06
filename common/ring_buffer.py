@@ -1,47 +1,44 @@
 from datetime import datetime, timedelta
 
-_buffer = list()
-_size = 10
-_timeout = timedelta(minutes=5)
+class RingBuffer:
+    def __init__(self, size=10, timeout=5):
+        self._buffer = list()
+        self._timeout = timedelta(minutes=timeout)
+        self.size = size
+    def push(self, id, data, timestamp=datetime.now()):
+        if len(self._buffer) == self.size:
+            self._buffer.pop(0)
 
-def set_size(size):
-    global _size
-    _size = size
+        self.remove(id)
+        self._buffer.append({
+            'id': id,
+            'data': data,
+            'timestamp': timestamp
+        })
 
-def push(id, data, timestamp=datetime.now()):
-    if len(_buffer) == _size:
-        _buffer.pop(0)
-
-    remove(id)
-    _buffer.append({
-        'id': id,
-        'data': data,
-        'timestamp': timestamp
-    })
-
-def _get(id):
-    for x in _buffer:
-        if x['id'] == id:
-            if x['timestamp'] + _timeout > datetime.now():
-                return x
-            else:
-                _buffer.remove(x)
-    return None
-
-def get(id):
-    elem = _get(id)
-    if elem is not None:
-        return _get(id)['data']
-    else:
+    def _get(self, id):
+        for x in self._buffer:
+            if x['id'] == id:
+                if x['timestamp'] + self._timeout > datetime.now():
+                    return x
+                else:
+                    self._buffer.remove(x)
         return None
 
-def contains(id):
-    return _get(id) != None
+    def get(self, id):
+        elem = self._get(id)
+        if elem is not None:
+            return self._get(id)['data']
+        else:
+            return None
 
-def remove(id):
-    elem = _get(id)
-    if elem is not None:
-        _buffer.remove(elem)
+    def contains(self, id):
+        return self._get(id) != None
 
-def clear():
-    _buffer.clear()
+    def remove(self, id):
+        elem = self._get(id)
+        if elem is not None:
+            self._buffer.remove(elem)
+
+    def clear(self):
+        self._buffer.clear()
