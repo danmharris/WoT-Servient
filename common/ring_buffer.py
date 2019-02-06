@@ -5,9 +5,10 @@ _size = 10
 _timeout = timedelta(minutes=5)
 
 def set_size(size):
+    global _size
     _size = size
 
-def push(id, data):
+def push(id, data, timestamp=datetime.now()):
     if len(_buffer) == _size:
         _buffer.pop(0)
 
@@ -15,7 +16,7 @@ def push(id, data):
     _buffer.append({
         'id': id,
         'data': data,
-        'timestamp': datetime.now()
+        'timestamp': timestamp
     })
 
 def _get(id):
@@ -28,7 +29,11 @@ def _get(id):
     return None
 
 def get(id):
-    return _get(id)['data']
+    elem = _get(id)
+    if elem is not None:
+        return _get(id)['data']
+    else:
+        return None
 
 def contains(id):
     return _get(id) != None
