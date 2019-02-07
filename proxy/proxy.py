@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, Response
 from proxy.endpoint import Endpoint
 from common.db import get_db
+from common.redis import get_redis
 import requests
 
 bp = Blueprint('proxy', __name__, url_prefix='/proxy')
@@ -32,16 +33,25 @@ def req(uuid):
     try:
         s = get_db()
         endpoint = Endpoint.get_by_uuid(s, uuid)
+        redis = get_redis()
         try:
-            if request.method == 'GET':
-                r = requests.get(endpoint.url, timeout=1)
-            elif request.method == 'POST':
-                if request.is_json:
-                    r = requests.post(endpoint.url, json=request.get_json())
-                else:
-                    r = requests.post(endpoint.url, data=request.data)
-            response = Response(r.text)
-            response.headers['Content-Type'] = r.headers['content-type']
+            if request.method == 'GET' and redis.exists(uuid):
+                response = Response(redis.hget(uuid, 'data'))
+                response.headers['Content-Type'] = redis.hget(uuid, 'content_type')
+            else:
+                print('making request!')
+                if request.method == 'GET':
+                    r = requests.get(endpoint.url, timeout=1)
+                    redis.hset(uuid, 'data', r.text)
+                    redis.hset(uuid, 'content_type', r.headers['content-type'])
+                    redis.expire(uuid, 300)
+                elif request.method == 'POST':
+                    if request.is_json:
+                        r = requests.post(endpoint.url, json=request.get_json())
+                    else:
+                        r = requests.post(endpoint.url, data=request.data)
+                response = Response(r.text)
+                response.headers['Content-Type'] = r.headers['content-type']
             return response
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
             return (jsonify({
