@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from pyHS100 import Discover, SmartPlug
 from common.db import get_db
+from common.td_util import ThingDescriptionBuilder, ObjectBuilder, StringBuilder
 
 bp = Blueprint('tplink', __name__, url_prefix='/tp_link')
 
@@ -67,3 +68,17 @@ def toggle(alias):
         return (jsonify({
             'message': 'Device not found'
         }), 404, None)
+
+def build_td(id):
+    alias = id.split(':')[1]
+    td=ThingDescriptionBuilder(f'urn:{id}','SmartPlug')
+
+    schema = ObjectBuilder()
+    schema.add_string('state')
+    updated = ObjectBuilder()
+    updated.add_string('message')
+
+    td.add_property('state', f'http://localhost:5000/tp_link/{alias}/state', schema.build())
+    td.add_action('state', f'http://localhost:5000/tp_link/{alias}/state', schema.build(), updated.build())
+    td.add_action('toggle', f'http://localhost:5000/tp_link/{alias}/state/toggle', output=updated.build())
+    return td.build()
