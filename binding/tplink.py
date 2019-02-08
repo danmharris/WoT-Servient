@@ -15,14 +15,14 @@ def discover():
             'alias': dev.alias,
             'ip': dev.host,
         })
-        s[dev.alias] = dev.host
+        s[f'tp_link:{dev.alias}'] = dev.host
     return jsonify(discovered)
 
 @bp.route('/<alias>/state', methods=['GET'])
 def get_status(alias):
     s = get_db()
-    if alias in s:
-        plug = SmartPlug(s[alias])
+    if f'tp_link:{alias}' in s:
+        plug = SmartPlug(s[f'tp_link:{alias}'])
         return jsonify({
             'state': plug.state
         })
@@ -31,23 +31,26 @@ def get_status(alias):
             'message': 'Device not found'
         }), 404, None)
 
+def _set_status(device, state):
+    if state == 'ON':
+        device.turn_on()
+    elif state == 'OFF':
+        device.turn_off()
+    else:
+        return (jsonify({
+            'message': 'Invalid option'
+        }), 400, None)
+    return jsonify({
+        'message': 'State updated'
+    })
+
 @bp.route('/<alias>/state', methods=['POST'])
 def set_status(alias):
     data = request.get_json()
     s = get_db()
-    if alias in s:
-        plug = SmartPlug(s[alias])
-        if data['state'] == 'ON':
-            plug.turn_on()
-        elif data['state'] == 'OFF':
-            plug.turn_off()
-        else:
-            return (jsonify({
-                'message': 'Invalid option'
-            }), 400, None)
-        return jsonify({
-            'message': 'State updated'
-        })
+    if f'tp_link:{alias}' in s:
+        plug = SmartPlug(s[f'tp_link:{alias}'])
+        return _set_status(plug, data['state'])
     else:
         return (jsonify({
             'message': 'Device not found'
@@ -56,15 +59,10 @@ def set_status(alias):
 @bp.route('/<alias>/state/toggle', methods=['POST'])
 def toggle(alias):
     s = get_db()
-    if alias in s:
-        plug = SmartPlug(s[alias])
-        if plug.state == 'ON':
-            plug.turn_off()
-        else:
-            plug.turn_on()
-        return jsonify({
-            'message': 'State updated'
-        })
+    if f'tp_link:{alias}' in s:
+        plug = SmartPlug(s[f'tp_link:{alias}'])
+        new_state = 'OFF' if plug.state == 'ON' else 'ON'
+        return _set_status(plug, new_state)
     else:
         return (jsonify({
             'message': 'Device not found'
