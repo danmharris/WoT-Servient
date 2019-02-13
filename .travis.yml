@@ -6,5 +6,6 @@ install:
 script:
   - pytest ./$SERVICE
 env:
+  - SERVICE=common
   - SERVICE=thing_directory
   - SERVICE=binding
