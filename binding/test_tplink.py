@@ -96,3 +96,70 @@ def test_toggle_off(client, smart_plug):
     }
 
     smart_plug.return_value.turn_off.assert_called_once()
+
+def test_get_td(client):
+    response = client.get('/')
+    assert response.get_json() == [{
+        'actions': {
+            'state': {
+                'forms': [
+                    {
+                        'contentType': 'application/json',
+                        'href': 'http://localhost:5000/tp_link:SmartPlug/state'
+                    }
+                ],
+                'input': {
+                    'properties': {
+                        'state': {
+                            'type': 'string'
+                        }
+                    },
+                    'type': 'object'
+                },
+                'output': {
+                    'properties': {
+                        'message': {
+                            'type': 'string'
+                        }
+                    },
+                    'type': 'object'
+                }
+            },
+            'toggle': {
+                'forms': [
+                    {
+                        'contentType': 'application/json',
+                        'href': 'http://localhost:5000/tp_link:SmartPlug/state/toggle'
+                    }
+                ],
+                'output': {
+                    'properties': {
+                        'message': {
+                            'type': 'string'
+                        }
+                    },
+                    'type': 'object'
+                }
+            }
+        },
+        'events': {},
+        'id': 'urn:tp_link:SmartPlug',
+        'name': 'SmartPlug',
+        'properties': {
+            'state': {
+                'forms': [
+                    {
+                        'contentType': 'application/json',
+                        'href': 'http://localhost:5000/tp_link:SmartPlug/state'
+                    }
+                ],
+                'properties': {
+                    'state': {
+                        'type': 'string'
+                    }
+                },
+                'type': 'object'
+            }
+        },
+        'security': []
+    }]

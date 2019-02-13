@@ -3,7 +3,7 @@ from binding import tplink
 
 #TODO: Add Thing Description builder based on database
 
-descriptions = list()
+descriptions = dict()
 
 def create_app(app_config=None):
     app = Flask(__name__)
@@ -15,10 +15,11 @@ def create_app(app_config=None):
     for binding in app.config['BINDINGS']:
         for bp, td in binding.produce():
             app.register_blueprint(bp)
-            descriptions.append(td)
+            if td['id'] not in descriptions:
+                descriptions[td['id']] = td
 
     @app.route('/', methods=['GET'])
     def get_descriptions():
-        return jsonify(descriptions)
+        return jsonify(list(descriptions.values()))
 
     return app
