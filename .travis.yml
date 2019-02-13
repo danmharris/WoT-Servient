@@ -8,4 +8,5 @@ script:
 env:
   - SERVICE=common
   - SERVICE=thing_directory
+  - SERVICE=proxy
   - SERVICE=binding

@@ -6,7 +6,7 @@ def create_app(app_config=None):
     app = Flask(__name__)
     if app_config is None:
         app.config['DB'] = 'endpoints.db'
-        app.config['redis'] = 'localhost'
+        app.config['REDIS'] = 'localhost'
     else:
         app.config.from_mapping(app_config)
     app.register_blueprint(proxy.bp)
