@@ -1,26 +1,24 @@
 from flask import Flask, jsonify
 from binding import tplink
-from common.db import get_db, close_db
 
 #TODO: Add Thing Description builder based on database
+
+descriptions = list()
 
 def create_app(app_config=None):
     app = Flask(__name__)
     if app_config is None:
-        app.config['DB'] = 'things.db'
+        app.config['BINDINGS'] = [tplink.TpLinkProducer()]
     else:
         app.config.from_mapping(app_config)
-    app.register_blueprint(tplink.bp)
-    app.teardown_appcontext(close_db)
+
+    for binding in app.config['BINDINGS']:
+        for bp, td in binding.produce():
+            app.register_blueprint(bp)
+            descriptions.append(td)
 
     @app.route('/', methods=['GET'])
     def get_descriptions():
-        s = get_db()
-        descriptions = list()
-        for id in s:
-            category = id.split(':')[0]
-            if category == 'tp_link':
-                descriptions.append(tplink.build_td(id))
         return jsonify(descriptions)
 
     return app

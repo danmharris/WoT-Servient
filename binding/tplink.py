@@ -1,84 +1,68 @@
 from flask import Blueprint, jsonify, request
 from pyHS100 import Discover, SmartPlug
-from common.db import get_db
 from common.td_util import ThingDescriptionBuilder, ObjectBuilder, StringBuilder
+from binding.producer import Producer
 
-bp = Blueprint('tplink', __name__, url_prefix='/tp_link')
+class TpLinkProducer(Producer):
+    def __init__(self):
+        super().__init__()
+    def produce(self):
+        discovered = list()
+        for dev in Discover.discover().values():
+            prefix = 'tp_link:{}'.format(dev.alias)
+            bp = _produce_blueprint(dev.host, '/'+prefix)
+            td = _build_td(prefix, dev.alias)
+            discovered.append((bp, td))
+        return discovered
 
-#TODO: Add device type to data storage (e.g. SmartPlug, SmartBulb etc.)
+def _produce_blueprint(address, prefix):
+    bp = Blueprint(prefix, __name__, url_prefix=prefix)
 
-@bp.route('/discover', methods=['POST'])
-def discover():
-    discovered = list()
-    s = get_db()
-    for dev in Discover.discover().values():
-        discovered.append({
-            'alias': dev.alias,
-            'ip': dev.host,
-        })
-        s[f'tp_link:{dev.alias}'] = dev.host
-    return jsonify(discovered)
+    #TODO: Add device type to data storage (e.g. SmartPlug, SmartBulb etc.)
 
-@bp.route('/<alias>/state', methods=['GET'])
-def get_status(alias):
-    s = get_db()
-    if f'tp_link:{alias}' in s:
-        plug = SmartPlug(s[f'tp_link:{alias}'])
+    @bp.route('/state', methods=['GET'])
+    def get_status():
+        plug = SmartPlug(address)
         return jsonify({
             'state': plug.state
         })
-    else:
-        return (jsonify({
-            'message': 'Device not found'
-        }), 404, None)
 
-def _set_status(device, state):
-    if state == 'ON':
-        device.turn_on()
-    elif state == 'OFF':
-        device.turn_off()
-    else:
-        return (jsonify({
-            'message': 'Invalid option'
-        }), 400, None)
-    return jsonify({
-        'message': 'State updated'
-    })
+    def _set_status(device, state):
+        if state == 'ON':
+            device.turn_on()
+        elif state == 'OFF':
+            device.turn_off()
+        else:
+            return (jsonify({
+                'message': 'Invalid option'
+            }), 400, None)
+        return jsonify({
+            'message': 'State updated'
+        })
 
-@bp.route('/<alias>/state', methods=['POST'])
-def set_status(alias):
-    data = request.get_json()
-    s = get_db()
-    if f'tp_link:{alias}' in s:
-        plug = SmartPlug(s[f'tp_link:{alias}'])
+    @bp.route('/state', methods=['POST'])
+    def set_status():
+        data = request.get_json()
+        plug = SmartPlug(address)
         return _set_status(plug, data['state'])
-    else:
-        return (jsonify({
-            'message': 'Device not found'
-        }), 404, None)
 
-@bp.route('/<alias>/state/toggle', methods=['POST'])
-def toggle(alias):
-    s = get_db()
-    if f'tp_link:{alias}' in s:
-        plug = SmartPlug(s[f'tp_link:{alias}'])
+    @bp.route('/state/toggle', methods=['POST'])
+    def toggle():
+        plug = SmartPlug(address)
         new_state = 'OFF' if plug.state == 'ON' else 'ON'
         return _set_status(plug, new_state)
-    else:
-        return (jsonify({
-            'message': 'Device not found'
-        }), 404, None)
 
-def build_td(id):
-    alias = id.split(':')[1]
-    td=ThingDescriptionBuilder(f'urn:{id}','SmartPlug')
+    return bp
+
+def _build_td(prefix, alias):
+    td=ThingDescriptionBuilder('urn:{}'.format(prefix), alias)
 
     schema = ObjectBuilder()
     schema.add_string('state')
     updated = ObjectBuilder()
     updated.add_string('message')
 
-    td.add_property('state', f'http://localhost:5000/tp_link/{alias}/state', schema.build())
-    td.add_action('state', f'http://localhost:5000/tp_link/{alias}/state', schema.build(), updated.build())
-    td.add_action('toggle', f'http://localhost:5000/tp_link/{alias}/state/toggle', output=updated.build())
+    td.add_property('state', 'http://localhost:5000/{}/state'.format(prefix), schema.build())
+    td.add_action('state', 'http://localhost:5000/{}/state'.format(prefix), schema.build(), updated.build())
+    td.add_action('toggle', 'http://localhost:5000/{}/state/toggle'.format(prefix), output=updated.build())
     return td.build()
