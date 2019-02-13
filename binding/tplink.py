@@ -11,12 +11,19 @@ class TpLinkProducer(Producer):
         for dev in Discover.discover().values():
             prefix = 'tp_link:{}'.format(dev.alias)
             bp = _produce_blueprint(dev.host, '/'+prefix)
-            td = _build_td(prefix, dev.alias)
+            td = _build_td(prefix, dev.alias, dev.host)
             discovered.append((bp, td))
         return discovered
 
 def _produce_blueprint(address, prefix):
     bp = Blueprint(prefix, __name__, url_prefix=prefix)
+    plug = SmartPlug(address)
+
+    def get_emeter():
+        return jsonify(plug.get_emeter_realtime())
+
+    if plug.has_emeter:
+        bp.add_url_rule('/emeter',view_func=get_emeter)
 
     #TODO: Add device type to data storage (e.g. SmartPlug, SmartBulb etc.)
 
@@ -54,8 +61,9 @@ def _produce_blueprint(address, prefix):
 
     return bp
 
-def _build_td(prefix, alias):
+def _build_td(prefix, alias, address):
     td=ThingDescriptionBuilder('urn:{}'.format(prefix), alias)
+    plug = SmartPlug(address)
 
     schema = ObjectBuilder()
     schema.add_string('state')
@@ -65,4 +73,13 @@ def _build_td(prefix, alias):
     td.add_property('state', 'http://localhost:5000/{}/state'.format(prefix), schema.build())
     td.add_action('state', 'http://localhost:5000/{}/state'.format(prefix), schema.build(), updated.build())
     td.add_action('toggle', 'http://localhost:5000/{}/state/toggle'.format(prefix), output=updated.build())
+
+    if plug.has_emeter:
+        emeter = ObjectBuilder()
+        emeter.add_number('current')
+        emeter.add_number('power')
+        emeter.add_number('total')
+        emeter.add_number('voltage')
+        td.add_property('emeter', 'http://localhost:5000/{}/emeter'.format(prefix), emeter.build())
+
     return td.build()
