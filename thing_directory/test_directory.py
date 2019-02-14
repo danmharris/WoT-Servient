@@ -5,6 +5,8 @@ import pytest
 import tempfile
 import shelve
 import os
+from unittest.mock import patch
+import requests
 
 @pytest.fixture
 def app():
@@ -12,7 +14,8 @@ def app():
 
     app = create_app({
         'TESTING': True,
-        'DB': db_path
+        'DB': db_path,
+        'PROXY': 'http://localhost',
     })
 
     with app.app_context():
@@ -107,13 +110,46 @@ def test_query_groups_none(client):
 
 def test_register(client):
     """ Test /things/register POST endpoint """
-    response = client.post('/things/register',
-        json={
-            'schema': {
-                'name': 'test3'
-            }
+    with patch('requests.post', autospec=True) as mock_requests:
+        response = client.post('/things/register',
+            json={
+                'schema': {
+                    'name': 'test3'
+                },
+                'properties': {
+                    'status': {
+                        'forms': [{
+                            'href': 'http://example.com'
+                        }]
+                    }
+                }
+            })
+        assert response.status_code == 201
+        mock_requests.assert_called_once_with('http://localhost/proxy/add', json={
+            'url': 'http://example.com'
         })
-    assert response.status_code == 201
+
+def test_register_timeout(client):
+    """ Test /things/register endpoint when proxy cannot be reached """
+    with patch('requests.post', autospec=True) as mock_requests:
+        mock_requests.side_effect = requests.exceptions.Timeout()
+        response = client.post('/things/register',
+            json={
+                'schema': {
+                    'name': 'test3'
+                },
+                'properties': {
+                    'status': {
+                        'forms': [{
+                            'href': 'http://example.com'
+                        }]
+                    }
+                }
+            })
+        assert response.status_code == 504
+        assert response.get_json() == {
+            'message': 'Could not reach proxy'
+        }
 
 def test_add_group(client):
     """ Test /things/<uuid>/groups POST request """
