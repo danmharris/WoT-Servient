@@ -43,6 +43,9 @@ class Thing:
         if 'groups' in self.schema:
             self.schema['groups'] = [g for g in self.schema['groups'] if g != group]
     def save(self):
+        self.schema['properties'] = self.properties
+        self.schema['actions'] = self.actions
+        self.schema['events'] = self.events
         self.dbh[self.uuid] = self.schema
     def delete(self):
         del self.dbh[self.uuid]

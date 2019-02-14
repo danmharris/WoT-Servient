@@ -96,9 +96,9 @@ def test_del_group():
 def test_save():
     """ Tests that saving updates the database object """
     s = {}
-    thing = Thing(s, {'property': 'value'}, '123')
+    thing = Thing(s, {'properties':{'test': 'test'}}, '123')
     thing.save()
-    assert s['123'] == {'property': 'value'}
+    assert s['123'] == {'properties':{'test': 'test'}, 'actions': {}, 'events': {}}
 
 def test_delete_present():
     """ Tests deleting an object """

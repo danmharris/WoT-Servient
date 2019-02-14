@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, request, jsonify
 import uuid
 from thing_directory.thing import Thing
 from common.db import get_db
+import requests
 
 bp = Blueprint('directory', __name__, url_prefix='/things')
 
@@ -63,11 +64,31 @@ def query():
             continue
     return jsonify(matching)
 
+def add_proxy_endpoints(host, properties):
+    for prop in properties:
+        if 'forms' in properties[prop]:
+            for form in properties[prop]['forms']:
+                if 'href' in form:
+                    #Add to proxy
+                    res = requests.post(host+'/proxy/add', json={
+                        'url': form['href']
+                    })
+                    form['href'] = '{}/{}'.format(host, res.json()['uuid'])
+
 @bp.route('/register', methods=['POST'])
 def register():
     # Needs to validate input
     s = get_db()
-    new_thing = Thing(s, request.get_json())
+    new_thing = Thing(s, request.get_json(), uuid.uuid4().hex)
+
+    if 'PROXY' in current_app.config:
+        try:
+            add_proxy_endpoints(current_app.config['PROXY'], new_thing.properties)
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            return (jsonify({
+                'message': 'Could not reach proxy'
+            }), 504, None)
+
     new_thing.save()
     response = {
         "id": new_thing.uuid
