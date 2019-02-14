@@ -6,6 +6,9 @@ from proxy import proxy
 from common.db import get_db, close_db
 from requests.exceptions import Timeout, ConnectionError
 
+#TODO: Test that these endpoints actually save into the database
+# Retrieve database after request made and check contents
+
 @pytest.fixture
 def app():
     db_path = 'test.db'
@@ -39,6 +42,12 @@ def redis():
     with patch('redis.Redis', autospec=True) as mock_redis:
         mock_redis.return_value.exists.return_value = False
         yield mock_redis
+
+def test_add(client):
+    response = client.post('/proxy/add', json={
+        'url': 'http://example.com'
+    })
+    assert response.status_code == 201
 
 def test_details(client):
     response = client.get('/proxy/123/details')
@@ -96,3 +105,11 @@ def test_update(client):
     assert response.get_json() == {
         'message': 'Updated'
     }
+
+def test_update_404(client):
+    response = client.put('/proxy/456', json={
+        'url': 'http://test.xyz'
+    })
+
+    assert response.status_code == 404
+    assert response.data == b"{'message': 'Endpoint not found'}"

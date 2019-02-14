@@ -15,7 +15,7 @@ def add():
     response = {
         'uuid': endpoint.uuid,
     }
-    return jsonify(response)
+    return (jsonify(response), 201, None)
 
 @bp.route('/<uuid>/details', methods=['GET'])
 def get(uuid):
