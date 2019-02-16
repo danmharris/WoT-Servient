@@ -3,6 +3,7 @@ Description=WoT network proxy to cache property readings
 
 [Service]
 Type=simple
+WorkingDirectory=/opt/wot-network
 ExecStart=/opt/wot-network/bin/wot-proxy
 
 [Install]
