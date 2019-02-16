@@ -15,3 +15,13 @@ These wrap legacy IoT devices in a HTTP API that can be controlled by a WoT appl
 
 ### [Other Common Modules](common/)
 Modules which can be used across all of these services, such as wrappers for Shelve databases or utilities for generating thing descriptions
+
+## Installation
+These services have been bundled with setuptools and contain systemd units for allowing them to be started automatically on boot.
+
+They can be installed by running `sudo ./install.sh`, which will install the services under a python venv in `/opt/wot-network`.
+
+Running this script provides the following systemd units:
+* `wot-td.service`
+* `wot-proxy.service`
+* `wot-binding.service`
