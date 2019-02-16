@@ -8,3 +8,8 @@ __pycache__/
 .coverage
 .pytest_cache/
 htmlcov/
+
+# setuptools exclusions
+*.egg-info
+build/
+dist/
