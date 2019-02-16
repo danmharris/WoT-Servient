@@ -3,6 +3,7 @@ Description=WoT Thing Directory
 
 [Service]
 Type=simple
+WorkingDirectory=/opt/wot-network
 ExecStart=/opt/wot-network/bin/wot-td
 
 [Install]
