@@ -1,0 +1,9 @@
+[Unit]
+Description=WoT Thing Directory
+
+[Service]
+Type=simple
+ExecStart=/opt/wot-network/bin/wot-td
+
+[Install]
+WantedBy=multi-user.target

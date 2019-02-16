@@ -1,0 +1,9 @@
+[Unit]
+Description=Bindings on WoT network to legacy protocols
+
+[Service]
+Type=simple
+ExecStart=/opt/wot-network/bin/wot-binding
+
+[Install]
+WantedBy=multi-user.target
