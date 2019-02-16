@@ -3,6 +3,7 @@
 venv/
 __pycache__/
 *.db
+.vscode
 
 # Testing exclusions
 .coverage
