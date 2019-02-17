@@ -3,6 +3,7 @@ from thing_directory.app import create_app as create_td_app
 from binding.app import create_app as create_binding_app
 import configparser
 import sys
+import jwt
 
 def read_config():
     try:
@@ -37,3 +38,10 @@ def start_thing_directory():
         'PROXY': config['thing_directory']['proxy'],
     })
     app.run(host='0.0.0.0', port=5002)
+
+def generate_api_token():
+    config = read_config()
+    secret = config['DEFAULT']['secret']
+    description = input('Enter description for key: ')
+
+    return jwt.encode({'description': description}, secret, algorithm='HS256')

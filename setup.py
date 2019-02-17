@@ -12,7 +12,8 @@ setup(
         'console_scripts': [
             'wot-td = scripts.main:start_thing_directory',
             'wot-proxy = scripts.main:start_proxy',
-            'wot-binding = scripts.main:start_binding'
+            'wot-binding = scripts.main:start_binding',
+            'wot-gen-token = scripts.main:generate_api_token',
         ]
     }
 )
