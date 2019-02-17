@@ -14,12 +14,17 @@ def read_config():
         print('No config file')
         sys.exit(1)
 
+def read_bool(value):
+    return True if value == 'yes' else False
+
 def start_binding():
     config = read_config()
     bindings = config['binding']['enabled_plugins'].split(' ')
     app = create_binding_app({
         'BINDINGS': bindings,
         'HOSTNAME': config['binding']['hostname'],
+        'AUTH': read_bool(config['binding']['require_auth']),
+        'SECRET': config['binding']['secret'],
     })
     app.run(host='0.0.0.0', port=5000)
 
@@ -28,6 +33,8 @@ def start_proxy():
     app = create_proxy_app({
         'DB': config['proxy']['db'],
         'REDIS': config['proxy']['redis'],
+        'AUTH': read_bool(config['proxy']['require_auth']),
+        'SECRET': config['proxy']['secret'],
     })
     app.run(host='0.0.0.0', port=5001)
 
@@ -36,6 +43,8 @@ def start_thing_directory():
     app = create_td_app({
         'DB': config['thing_directory']['db'],
         'PROXY': config['thing_directory']['proxy'],
+        'AUTH': read_bool(config['thing_directory']['require_auth']),
+        'SECRET': config['thing_directory']['secret'],
     })
     app.run(host='0.0.0.0', port=5002)
 

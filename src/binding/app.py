@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from binding import tplink
+from common.auth import check_auth
 
 #TODO: Add Thing Description builder based on database
 
@@ -12,6 +13,7 @@ def create_app(app_config=None):
         app.config['HOSTNAME'] = 'http://localhost:5000'
     else:
         app.config.from_mapping(app_config)
+    app.before_request(check_auth)
 
     with app.app_context():
         for binding_name in app.config['BINDINGS']:
