@@ -1,15 +1,39 @@
 from proxy.app import create_app as create_proxy_app
 from thing_directory.app import create_app as create_td_app
 from binding.app import create_app as create_binding_app
+import configparser
+import sys
+
+def read_config():
+    try:
+        config = configparser.ConfigParser()
+        config.read('/etc/wot-network.ini')
+        return config
+    except:
+        print('No config file')
+        sys.exit(1)
 
 def start_binding():
-    app = create_binding_app()
+    config = read_config()
+    bindings = config['binding']['enabled_plugins'].split(' ')
+    app = create_binding_app({
+        'BINDINGS': bindings,
+        'HOSTNAME': config['binding']['hostname'],
+    })
     app.run(host='0.0.0.0', port=5000)
 
 def start_proxy():
-    app = create_proxy_app()
+    config = read_config()
+    app = create_proxy_app({
+        'DB': config['proxy']['db'],
+        'REDIS': config['proxy']['redis'],
+    })
     app.run(host='0.0.0.0', port=5001)
 
 def start_thing_directory():
-    app = create_td_app()
+    config = read_config()
+    app = create_td_app({
+        'DB': config['thing_directory']['db'],
+        'PROXY': config['thing_directory']['proxy'],
+    })
     app.run(host='0.0.0.0', port=5002)
