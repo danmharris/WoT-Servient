@@ -22,7 +22,8 @@ def smart_plug():
 def app(smart_plug):
     app = create_app({
         'TESTING': True,
-        'BINDINGS': [TpLinkProducer()],
+        'BINDINGS': ['tplink'],
+        'HOSTNAME': 'http://localhost:5000'
     })
 
     yield app

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from pyHS100 import Discover, SmartPlug
 from common.td_util import ThingDescriptionBuilder, ObjectBuilder, StringBuilder
 from binding.producer import Producer
@@ -62,6 +62,7 @@ def _produce_blueprint(address, prefix):
     return bp
 
 def _build_td(prefix, alias, address):
+    hostname = current_app.config['HOSTNAME']
     td=ThingDescriptionBuilder('urn:{}'.format(prefix), alias)
     plug = SmartPlug(address)
 
@@ -70,9 +71,9 @@ def _build_td(prefix, alias, address):
     updated = ObjectBuilder()
     updated.add_string('message')
 
-    td.add_property('state', 'http://localhost:5000/{}/state'.format(prefix), schema.build())
-    td.add_action('state', 'http://localhost:5000/{}/state'.format(prefix), schema.build(), updated.build())
-    td.add_action('toggle', 'http://localhost:5000/{}/state/toggle'.format(prefix), output=updated.build())
+    td.add_property('state', '{}/{}/state'.format(hostname, prefix), schema.build())
+    td.add_action('state', '{}/{}/state'.format(hostname, prefix), schema.build(), updated.build())
+    td.add_action('toggle', '{}/{}/state/toggle'.format(hostname, prefix), output=updated.build())
 
     if plug.has_emeter:
         emeter = ObjectBuilder()
@@ -80,6 +81,6 @@ def _build_td(prefix, alias, address):
         emeter.add_number('power')
         emeter.add_number('total')
         emeter.add_number('voltage')
-        td.add_property('emeter', 'http://localhost:5000/{}/emeter'.format(prefix), emeter.build())
+        td.add_property('emeter', '{}/{}/emeter'.format(hostname, prefix), emeter.build())
 
     return td.build()
