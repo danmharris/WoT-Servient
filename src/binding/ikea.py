@@ -21,8 +21,8 @@ class IKEAProducer(Producer):
                     td = _generate_plug_td(prefix)
                     bp = _produce_plug_blueprint('/'+prefix, dev['address'])
                     discovered.append((bp, td))
-        except:
-            print('hi')
+        except Exception as err:
+            print(err)
         return discovered
 
 async def _create_context():

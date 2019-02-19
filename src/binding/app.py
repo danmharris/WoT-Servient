@@ -4,8 +4,6 @@ from common.auth import check_auth
 
 #TODO: Add Thing Description builder based on database
 
-descriptions = dict()
-
 def create_app(app_config=None):
     app = Flask(__name__)
     if app_config is None:
@@ -14,6 +12,8 @@ def create_app(app_config=None):
     else:
         app.config.from_mapping(app_config)
     app.before_request(check_auth)
+
+    descriptions = dict()
 
     with app.app_context():
         for binding_name in app.config['BINDINGS']:
