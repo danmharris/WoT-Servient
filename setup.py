@@ -14,6 +14,7 @@ setup(
             'wot-proxy = scripts.main:start_proxy',
             'wot-binding = scripts.main:start_binding',
             'wot-cli = scripts.main:cli',
+            'wot-coap-thing = scripts.main:start_coap_thing',
         ]
     }
 )

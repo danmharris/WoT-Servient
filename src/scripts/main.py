@@ -1,6 +1,7 @@
 from proxy.app import create_app as create_proxy_app
 from thing_directory.app import create_app as create_td_app
 from binding.app import create_app as create_binding_app
+from coap_thing.app import main as create_coap_thing
 import configparser
 import sys
 import jwt
@@ -91,8 +92,10 @@ async def _generate_psk(address, psk, identity):
             }
         }
     })
-
     payload='{{"9090":"{}"}}'.format(identity).encode()
     request = Message(code=POST, payload=payload, uri='coaps://{}:5684/15011/9063'.format(address))
     response = await c.request(request).response
     return json.loads(response.payload)['9091']
+
+def start_coap_thing():
+    create_coap_thing()
