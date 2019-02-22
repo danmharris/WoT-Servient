@@ -29,7 +29,7 @@ def message():
 def app(context, message):
     context.return_value.request.side_effect = [
         Request(b'[12345]'),
-        Request(b'{"9001":"TRADFRI outlet", "3312":[{"5850":1}]}'),
+        Request(b'{"9001":"TRADFRI outlet", "9003":"12345", "3312":[{"5850":1}]}'),
     ]
     app = create_app({
         'TESTING': True,

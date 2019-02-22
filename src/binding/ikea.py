@@ -16,11 +16,10 @@ class IKEAProducer(Producer):
         discovered = list()
         try:
             for dev in loop.run_until_complete(discover()):
-                prefix = 'ikea:{}'.format(dev['address'])
-                if dev['name'] == 'TRADFRI outlet':
-                    td = _generate_plug_td(prefix)
-                    bp = _produce_plug_blueprint('/'+prefix, dev['address'])
-                    discovered.append((bp, td))
+                prefix = 'ikea:{}'.format(dev['9003'])
+                td = _generate_td(prefix, dev)
+                bp = _produce_blueprint('/'+prefix, dev)
+                discovered.append((bp, td))
         except Exception as err:
             print(err)
         return discovered
@@ -44,12 +43,8 @@ async def _get_device_info(address, c=None):
     device_info_response = await c.request(device_info_request).response
     return json.loads(device_info_response.payload)
 
-async def _set_state(state, address):
+async def _set_state(payload, address):
     c = await _create_context()
-    if state == 1:
-        payload = b'{"3311":[{"5850":1}]}'
-    elif state == 0:
-        payload = b'{"3311":[{"5850":0}]}'
     request = Message(code=PUT, payload=payload, uri='coaps://192.168.3.100:5684/15001/{}'.format(address))
     await c.request(request).response
 
@@ -62,37 +57,45 @@ async def discover():
     discovered = list()
     for dev in found_devices:
         device_info = await _get_device_info(dev, c)
-
-        discovered.append({
-            'address': dev,
-            'name': device_info['9001']
-        })
+        discovered.append(device_info)
     return discovered
 
-def _produce_plug_blueprint(prefix, address):
+def _produce_blueprint(prefix, device_info):
     bp = Blueprint(prefix, __name__, url_prefix=prefix)
     loop = asyncio.get_event_loop()
+    address = device_info['9003']
 
-    @bp.route('/state', methods=['POST'])
     def set_state():
         data = request.get_json()
-        loop.run_until_complete(_set_state(data['state'], address))
+
+        if '3312' in device_info:
+            payload = b'{"3311":[{"5850":'
+        payload = payload + str(data['state']).encode() + b'}]}'
+
+        loop.run_until_complete(_set_state(payload, address))
         return jsonify({
             'message': 'updated'
         })
 
-    @bp.route('/state', methods=['GET'])
     def get_state():
         device_info = loop.run_until_complete(_get_device_info(address))
+
+        if '3312' in device_info:
+            value = device_info['3312'][0]['5850']
+
         return jsonify({
-            'state': device_info['3312'][0]['5850']
+            'state': value
         })
+
+    if '3312' in device_info:
+        bp.add_url_rule('/state', methods=['GET'], view_func=get_state)
+        bp.add_url_rule('/state', methods=['POST'], view_func=set_state)
 
     return bp
 
-def _generate_plug_td(prefix):
+def _generate_td(prefix, device_info):
     hostname = current_app.config['HOSTNAME']
-    td = ThingDescriptionBuilder('urn:{}'.format(prefix), 'TRADFRI outlet')
+    td = ThingDescriptionBuilder('urn:{}'.format(prefix), device_info['9001'])
 
     schema = ObjectBuilder()
     schema.add_number('state')
@@ -100,8 +103,10 @@ def _generate_plug_td(prefix):
     response = ObjectBuilder()
     response.add_string('message')
 
-    td.add_action('setState', '{}/{}/state'.format(hostname, prefix), schema.build(), response.build())
-    td.add_property('state', '{}/{}/state'.format(hostname, prefix), schema.build())
+    if '3312' in device_info:
+        td.add_action('setState', '{}/{}/state'.format(hostname, prefix), schema.build(), response.build())
+        td.add_property('state', '{}/{}/state'.format(hostname, prefix), schema.build())
+
     return td.build()
 
 #TODO: Need a way to automate the generating the PSK rather than doing it once manually then hardcoding key
