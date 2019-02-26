@@ -5,6 +5,10 @@ import configparser
 import sys
 import jwt
 import click
+import asyncio
+from aiocoap import Context, Message
+from aiocoap.numbers.codes import POST
+import json
 
 def read_config(path='/etc/wot-network.ini'):
     try:
@@ -64,3 +68,30 @@ def generate_api_token(ctx, description):
     config = read_config(ctx.obj['CONFIG'])
     secret = config['DEFAULT']['secret']
     click.echo(jwt.encode({'description': description}, secret, algorithm='HS256').decode())
+
+@cli.command()
+@click.argument('psk')
+@click.argument('identity')
+@click.pass_context
+def generate_ikea_psk(ctx, psk, identity):
+    config = read_config(ctx.obj['CONFIG'])
+    address = config['IKEA']['address']
+    res = asyncio.get_event_loop().run_until_complete(_generate_psk(address, psk, identity))
+    click.echo(res)
+
+async def _generate_psk(address, psk, identity):
+    c = await Context.create_client_context()
+    uri = 'coaps://{}:5684/'.format(address)
+    c.client_credentials.load_from_dict({
+        uri+'*': {
+            'dtls': {
+                'psk': psk.encode(),
+                'client-identity': b'Client_identity',
+            }
+        }
+    })
+
+    payload='{{"9090":"{}"}}'.format(identity).encode()
+    request = Message(code=POST, payload=payload, uri='coaps://{}:5684/15011/9063'.format(address))
+    response = await c.request(request).response
+    return json.loads(response.payload)['9091']

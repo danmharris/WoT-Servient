@@ -108,21 +108,3 @@ def _generate_td(prefix, device_info):
         td.add_property('state', '{}/{}/state'.format(hostname, prefix), schema.build())
 
     return td.build()
-
-#TODO: Need a way to automate the generating the PSK rather than doing it once manually then hardcoding key
-
-# async def generate_psk():
-#     c = await Context.create_client_context()
-#     c.client_credentials.load_from_dict({
-#         'coaps://192.168.3.100:5684/*': {
-#             'dtls': {
-#                 'psk': b'REPLACE_ME_WITH_KEY',
-#                 'client-identity': b'Client_identity',
-#             }
-#         }
-#     })
-
-#     payload=b'{"9090":"test"}'
-#     request = Message(code=POST, payload=payload, uri='coaps://192.168.3.100:5684/15011/9063')
-#     response = await c.request(request).response
-#     print(response.payload)
