@@ -4,11 +4,12 @@ from binding.app import create_app as create_binding_app
 import configparser
 import sys
 import jwt
+import click
 
-def read_config():
+def read_config(path='/etc/wot-network.ini'):
     try:
         config = configparser.ConfigParser()
-        config.read('/etc/wot-network.ini')
+        config.read(path)
         return config
     except:
         print('No config file')
@@ -48,9 +49,18 @@ def start_thing_directory():
     })
     app.run(host='0.0.0.0', port=5002)
 
-def generate_api_token():
-    config = read_config()
-    secret = config['DEFAULT']['secret']
-    description = input('Enter description for key: ')
 
-    return jwt.encode({'description': description}, secret, algorithm='HS256')
+@click.group()
+@click.option('--config', default='/etc/wot-network.ini', help='Path to config file')
+@click.pass_context
+def cli(ctx, config):
+    ctx.ensure_object(dict)
+    ctx.obj['CONFIG'] = config
+
+@cli.command()
+@click.argument('description')
+@click.pass_context
+def generate_api_token(ctx, description):
+    config = read_config(ctx.obj['CONFIG'])
+    secret = config['DEFAULT']['secret']
+    click.echo(jwt.encode({'description': description}, secret, algorithm='HS256').decode())
