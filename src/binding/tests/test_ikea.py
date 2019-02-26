@@ -35,6 +35,11 @@ def app(context, message):
         'TESTING': True,
         'BINDINGS': ['ikea'],
         'HOSTNAME': 'http://localhost:5000',
+        'IKEA': {
+            'gateway': '192.168.3.100',
+            'psk': 'test',
+            'identity': 'test',
+        }
     })
 
     return app

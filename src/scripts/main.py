@@ -30,6 +30,7 @@ def start_binding():
         'HOSTNAME': config['binding']['hostname'],
         'AUTH': read_bool(config['binding']['require_auth']),
         'SECRET': config['binding']['secret'],
+        'IKEA': config['IKEA'],
     })
     app.run(host='0.0.0.0', port=5000)
 
