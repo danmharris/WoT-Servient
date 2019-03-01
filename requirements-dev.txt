@@ -5,3 +5,5 @@ pyHS100==0.3.4
 pytest==4.2.1
 coverage==4.5.2
 PyJWT==1.7.1
+-e git+git://github.com/chrysn/aiocoap.git#egg=aiocoap [all]
+Click==7.0
