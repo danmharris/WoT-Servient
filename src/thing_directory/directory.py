@@ -27,27 +27,6 @@ def get_by_id(uuid):
     finally:
         return response
 
-def get_attribute(uuid, property):
-    s = get_db()
-    try:
-        db_thing = Thing.get_by_uuid(s, uuid=uuid)
-        value = getattr(db_thing, property, None)
-        return jsonify(value)
-    except Exception as err:
-        return (str(err), 404, None)
-
-@bp.route('/<uuid>/properties', methods=['GET'])
-def get_properties(uuid):
-    return get_attribute(uuid, 'properties')
-
-@bp.route('/<uuid>/events', methods=['GET'])
-def get_events(uuid):
-    return get_attribute(uuid, 'events')
-
-@bp.route('/<uuid>/actions', methods=['GET'])
-def get_actions(uuid):
-    return get_attribute(uuid, 'actions')
-
 @bp.route('/query', methods=['GET'])
 def query():
     req_groups = request.args.get('groups').split(',')
@@ -83,7 +62,7 @@ def register():
 
     if 'PROXY' in current_app.config:
         try:
-            add_proxy_endpoints(current_app.config['PROXY'], new_thing.properties)
+            add_proxy_endpoints(current_app.config['PROXY'], new_thing.schema.get('properties', dict()))
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
             return (jsonify({
                 'message': 'Could not reach proxy'
