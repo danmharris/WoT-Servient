@@ -1,4 +1,5 @@
-import dbm, uuid
+import dbm
+from uuid import uuid4
 
 class Endpoint:
     @staticmethod
@@ -10,7 +11,9 @@ class Endpoint:
             raise Exception({
                 'message': 'Endpoint not found'
             })
-    def __init__(self, dbh, url, uuid = uuid.uuid4().hex):
+    def __init__(self, dbh, url, uuid=None):
+        if uuid is None:
+            uuid = uuid4().hex
         self.dbh = dbh
         self.url = url
         self.uuid = uuid

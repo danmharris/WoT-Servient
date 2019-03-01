@@ -52,7 +52,7 @@ def add_proxy_endpoints(host, properties):
                     res = requests.post(host+'/proxy/add', json={
                         'url': form['href']
                     })
-                    form['href'] = '{}/{}'.format(host, res.json()['uuid'])
+                    form['href'] = '{}/proxy/{}'.format(host, res.json()['uuid'])
 
 @bp.route('/register', methods=['POST'])
 def register():
