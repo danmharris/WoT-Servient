@@ -44,7 +44,7 @@ def req(uuid):
                     r = requests.get(endpoint.url, timeout=1)
                     redis.hset(uuid, 'data', r.text)
                     redis.hset(uuid, 'content_type', r.headers['content-type'])
-                    redis.expire(uuid, 300)
+                    redis.expire(uuid, 30)
                 elif request.method == 'POST':
                     if request.is_json:
                         r = requests.post(endpoint.url, json=request.get_json())
