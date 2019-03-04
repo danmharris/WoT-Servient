@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, jsonify
 from proxy import proxy
 from common.db import close_db
 from common.auth import check_auth
+from common.exception import APIException
 
 def create_app(app_config=None):
     app = Flask(__name__)
@@ -13,4 +14,9 @@ def create_app(app_config=None):
     app.register_blueprint(proxy.bp)
     app.teardown_appcontext(close_db)
     app.before_request(check_auth)
+
+    @app.errorhandler(APIException)
+    def api_error_handler(err):
+        return (jsonify({'message': err.message}), err.status, None)
+
     return app

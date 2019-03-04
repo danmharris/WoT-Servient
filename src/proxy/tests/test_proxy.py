@@ -61,7 +61,9 @@ def test_details_404(client):
     response = client.get('/proxy/456/details')
 
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Endpoint not found'}"
+    assert response.get_json() == {
+        'message': 'Endpoint not found',
+    }
 
 def test_request(client, requests, redis):
     response = client.get('/proxy/123')
@@ -85,7 +87,9 @@ def test_request_404(client):
     response = client.get('/proxy/456')
 
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Endpoint not found'}"
+    assert response.get_json() == {
+        'message': 'Endpoint not found',
+    }
 
 def test_request_504(client, requests, redis):
     requests.side_effect = Timeout()
@@ -112,4 +116,6 @@ def test_update_404(client):
     })
 
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Endpoint not found'}"
+    assert response.get_json() == {
+        'message': 'Endpoint not found',
+    }
