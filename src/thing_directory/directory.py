@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, request, jsonify
 import uuid
 from thing_directory.thing import Thing
 from common.db import get_db
+from common.exception import APIException
 import requests
 
 bp = Blueprint('directory', __name__, url_prefix='/things')
@@ -19,13 +20,8 @@ def get_all():
 @bp.route('/<uuid>', methods=['GET'])
 def get_by_id(uuid):
     s = get_db()
-    try:
-        db_thing = Thing.get_by_uuid(s, uuid=uuid)
-        response = jsonify(db_thing.schema)
-    except Exception as err:
-        response = (str(err), 404, None)
-    finally:
-        return response
+    db_thing = Thing.get_by_uuid(s, uuid=uuid)
+    return jsonify(db_thing.schema)
 
 @bp.route('/query', methods=['GET'])
 def query():
@@ -64,9 +60,7 @@ def register():
         try:
             add_proxy_endpoints(current_app.config['PROXY'], new_thing.schema.get('properties', dict()))
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-            return (jsonify({
-                'message': 'Could not reach proxy'
-            }), 504, None)
+            raise APIException('Could not reach proxy', 504)
 
     new_thing.save()
     response = {
@@ -78,10 +72,7 @@ def register():
 def add_group(uuid):
     body = request.get_json()
     s = get_db()
-    try:
-        db_thing = Thing.get_by_uuid(s, uuid=uuid)
-    except Exception as err:
-        return (str(err), 404, None)
+    db_thing = Thing.get_by_uuid(s, uuid=uuid)
     db_thing.add_group(body['group'])
     db_thing.save()
     response = {
@@ -92,24 +83,17 @@ def add_group(uuid):
 @bp.route('/<uuid>/groups/<group>', methods=['DELETE'])
 def del_group(uuid, group):
     s = get_db()
-    try:
-        db_thing = Thing.get_by_uuid(s, uuid=uuid)
-        db_thing.del_group(group)
-        db_thing.save()
-        return jsonify({
-            'message': 'group removed'
-        })
-    except Exception as err:
-        return (str(err), 404, None)
+    db_thing = Thing.get_by_uuid(s, uuid=uuid)
+    db_thing.del_group(group)
+    db_thing.save()
+    return jsonify({
+        'message': 'group removed'
+    })
 
 @bp.route('/<uuid>', methods=['DELETE'])
 def delete_thing(uuid):
     s = get_db()
-    try:
-        db_thing = Thing.get_by_uuid(s, uuid=uuid)
-        db_thing.delete()
-        response = (jsonify({"message": "deleted"}), 200, None)
-    except Exception as err:
-        response = (str(err), 404, None)
-    finally:
-        return response
+    db_thing = Thing.get_by_uuid(s, uuid=uuid)
+    db_thing.delete()
+    response = (jsonify({"message": "deleted"}), 200, None)
+    return response

@@ -48,7 +48,9 @@ def test_thing_uuid_404(client):
     """ Test /things/<uuid> GET request where the UUID doesn't exist """
     response = client.get('/things/abc')
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
 
 def test_query_groups(client):
     """ Test /things/query GET request with match """
@@ -133,7 +135,9 @@ def test_add_group_404(client):
     response = client.post('/things/abc/groups',
         json = {'group': 'group2'})
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
 
 def test_delete_group(client):
     """ Test /things/<uuid>/groups<group> removes a group """
@@ -150,6 +154,9 @@ def test_delete_group_404(client):
     """ Test /things/<uuid>/groups/<group> 404s on nonexistent UUID """
     response = client.delete('/things/abc/groups/test')
     assert response.status_code == 404
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
 
 def test_delete(client):
     """ Test /things/<uuid> DELETE request """
@@ -166,4 +173,6 @@ def test_delete_404(client):
     """ Test /things/<uuid> DELETE request where thing doesnt exist """
     response = client.delete('/things/abc')
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }

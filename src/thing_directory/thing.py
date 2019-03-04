@@ -1,4 +1,5 @@
 import dbm, uuid
+from common.exception import APIException
 
 class Thing:
     @staticmethod
@@ -7,9 +8,7 @@ class Thing:
             thing = s[uuid]
             return Thing(s, thing, uuid)
         except:
-            raise Exception({
-                "message": "Thing not found",
-            })
+            raise APIException('Thing not found', 404)
     def __init__(self, dbh, schema = {}, uuid= uuid.uuid4().hex):
         self.dbh = dbh
         self.schema = schema

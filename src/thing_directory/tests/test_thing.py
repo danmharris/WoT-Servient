@@ -1,4 +1,5 @@
 from thing_directory.thing import Thing
+from common.exception import APIException
 import pytest
 
 def test_constructor_given_args():
@@ -46,7 +47,7 @@ def test_get_by_uuid_not_present():
     s = {
         '123': 'schema'
     }
-    with pytest.raises(Exception):
+    with pytest.raises(APIException):
         Thing.get_by_uuid(s, '456')
 
 def test_add_groups_not_present():
