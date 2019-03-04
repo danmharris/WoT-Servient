@@ -1,5 +1,5 @@
 from thing_directory.app import create_app
-from thing_directory.data import data
+from .data import data
 from common.db import get_db, close_db
 import pytest
 import tempfile
@@ -36,59 +36,21 @@ def test_things(client):
     """ Test the /things GET request """
     response = client.get('/things')
     assert response.status_code == 200
-    assert response.get_json() == {
-        '123': {
-            'name':'test'
-        },
-        '456': {
-            'name':'test2',
-            'groups':['group1']
-        }
-    }
+    assert response.get_json() == data
 
 def test_thing_uuid(client):
     """ Test /things/<uuid> GET request where the UUID exists """
     response = client.get('/things/123')
     assert response.status_code == 200
-    assert response.get_json() == {
-        'name': 'test'
-    }
+    assert response.get_json() == data['123']
 
 def test_thing_uuid_404(client):
     """ Test /things/<uuid> GET request where the UUID doesn't exist """
     response = client.get('/things/abc')
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
-
-def test_thing_properties(client):
-    """ Test /things/<uuid>/properties GET request """
-    response = client.get('/things/123/properties')
-    assert response.status_code == 200
-    assert response.get_json() == data['123']['properties']
-
-def test_thing_properties_empty(client):
-    """ Test /things/<uuid>/properties GET request """
-    response = client.get('/things/456/properties')
-    assert response.status_code == 200
-    assert response.get_json() == {}
-
-def test_thing_properties_404(client):
-    """ Test /things/<uuid>/properties GET request on non existent thing """
-    response = client.get('/things/abc/properties')
-    assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
-
-def test_thing_events(client):
-    """ Test /things/<uuid>/events GET request """
-    response = client.get('/things/123/events')
-    assert response.status_code == 200
-    assert response.get_json() == data['123']['events']
-
-def test_thing_actions(client):
-    """ Test /things/<uuid>/actions GET request """
-    response = client.get('/things/123/actions')
-    assert response.status_code == 200
-    assert response.get_json() == data['123']['actions']
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
 
 def test_query_groups(client):
     """ Test /things/query GET request with match """
@@ -154,9 +116,7 @@ def test_register_timeout(client):
 def test_add_group(client):
     """ Test /things/<uuid>/groups POST request """
     initial_response = client.get('/things/123')
-    assert initial_response.get_json() == {
-        'name': 'test'
-    }
+    assert initial_response.get_json() == data['123']
 
     update_response = client.post('/things/123/groups',
         json = {'group': 'group2'})
@@ -166,7 +126,7 @@ def test_add_group(client):
 
     new_response = client.get('/things/123')
     assert new_response.get_json() == {
-        'name': 'test',
+        **data['123'],
         'groups': ['group2']
     }
 
@@ -175,7 +135,9 @@ def test_add_group_404(client):
     response = client.post('/things/abc/groups',
         json = {'group': 'group2'})
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
 
 def test_delete_group(client):
     """ Test /things/<uuid>/groups<group> removes a group """
@@ -192,6 +154,9 @@ def test_delete_group_404(client):
     """ Test /things/<uuid>/groups/<group> 404s on nonexistent UUID """
     response = client.delete('/things/abc/groups/test')
     assert response.status_code == 404
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
 
 def test_delete(client):
     """ Test /things/<uuid> DELETE request """
@@ -208,4 +173,6 @@ def test_delete_404(client):
     """ Test /things/<uuid> DELETE request where thing doesnt exist """
     response = client.delete('/things/abc')
     assert response.status_code == 404
-    assert response.data == b"{'message': 'Thing not found'}"
+    assert response.get_json() == {
+        'message': 'Thing not found',
+    }
