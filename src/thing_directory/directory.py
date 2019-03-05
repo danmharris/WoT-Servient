@@ -3,9 +3,11 @@ import uuid
 from thing_directory.thing import Thing
 from common.db import get_db
 from common.exception import APIException
+from common.auth import check_auth
 import requests
 
 bp = Blueprint('directory', __name__, url_prefix='/things')
+bp.before_request(check_auth)
 
 @bp.route('', methods=['GET'])
 def get_all():
