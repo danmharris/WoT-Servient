@@ -3,5 +3,5 @@ redis==3.1.0
 requests==2.21.0
 pyHS100==0.3.4
 PyJWT==1.7.1
--e git+git://github.com/chrysn/aiocoap.git#egg=aiocoap [all]
+-e git+git://github.com/chrysn/aiocoap.git#egg=aiocoap[all]
 Click==7.0

@@ -76,7 +76,7 @@ def generate_api_token(ctx, description):
 @click.pass_context
 def generate_ikea_psk(ctx, psk, identity):
     config = read_config(ctx.obj['CONFIG'])
-    address = config['IKEA']['address']
+    address = config['IKEA']['gateway']
     res = asyncio.get_event_loop().run_until_complete(_generate_psk(address, psk, identity))
     click.echo(res)
 
