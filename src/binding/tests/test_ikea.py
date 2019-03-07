@@ -100,7 +100,6 @@ def test_get_td(client):
     assert response.get_json() == [{
         'id': 'urn:ikea:12345',
         'name': 'TRADFRI outlet',
-        'security': [],
         'properties': {
             'state': {
                 'forms': [{
@@ -140,5 +139,14 @@ def test_get_td(client):
                 }
             }
         },
-        'events': {}
+        'events': {},
+        'security': ['bearer_token'],
+        'securityDefinitions': {
+            'bearer_token': {
+                'scheme': 'bearer',
+                'alg': 'HS256',
+                'in': 'header',
+                'name': 'Authorization'
+            }
+        },
     }]

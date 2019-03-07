@@ -85,11 +85,14 @@ def test_register(client):
                         }]
                     }
                 }
+            },
+            headers={
+                'Authorization': 'bearer token',
             })
         assert response.status_code == 201
         mock_requests.assert_called_once_with('http://localhost/proxy/add', json={
             'url': 'http://example.com'
-        })
+        }, headers={'Authorization': 'bearer token'})
 
 def test_register_timeout(client):
     """ Test /things/register endpoint when proxy cannot be reached """

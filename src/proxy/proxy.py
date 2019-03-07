@@ -3,9 +3,11 @@ from proxy.endpoint import Endpoint
 from common.db import get_db
 from common.redis import get_redis
 from common.exception import APIException
+from common.auth import check_auth_exclude
 import requests
 
 bp = Blueprint('proxy', __name__, url_prefix='/proxy')
+bp.before_request(check_auth_exclude(['proxy.req']))
 
 @bp.route('/add', methods=['POST'])
 def add():
@@ -38,15 +40,15 @@ def req(uuid):
         else:
             print('making request!')
             if request.method == 'GET':
-                r = requests.get(endpoint.url, timeout=1)
+                r = requests.get(endpoint.url, timeout=1, headers=request.headers)
                 redis.hset(uuid, 'data', r.text)
                 redis.hset(uuid, 'content_type', r.headers['content-type'])
                 redis.expire(uuid, 30)
             elif request.method == 'POST':
                 if request.is_json:
-                    r = requests.post(endpoint.url, json=request.get_json())
+                    r = requests.post(endpoint.url, json=request.get_json(), headers=request.headers)
                 else:
-                    r = requests.post(endpoint.url, data=request.data)
+                    r = requests.post(endpoint.url, data=request.data, headers=request.headers)
             response = Response(r.text)
             response.headers['Content-Type'] = r.headers['content-type']
         return response

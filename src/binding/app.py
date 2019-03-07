@@ -16,7 +16,6 @@ def create_app(app_config=None):
         }
     else:
         app.config.from_mapping(app_config)
-    app.before_request(check_auth)
 
     descriptions = dict()
 
@@ -28,6 +27,7 @@ def create_app(app_config=None):
                 binding = ikea.IKEAProducer()
 
             for bp, td in binding.produce():
+                bp.before_request(check_auth)
                 app.register_blueprint(bp)
                 if td['id'] not in descriptions:
                     descriptions[td['id']] = td
