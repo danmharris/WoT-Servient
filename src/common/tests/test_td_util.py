@@ -93,6 +93,7 @@ def test_td_builder_empty():
     assert ThingDescriptionBuilder('123', 'test').build() == {
         'id': '123',
         'name': 'test',
+        'securityDefinitions': {},
         'security': [],
         'properties': {},
         'actions': {},
@@ -100,10 +101,11 @@ def test_td_builder_empty():
     }
 
 def test_td_builder_security():
-    assert ThingDescriptionBuilder('123', 'test',['rsa']).build() == {
+    assert ThingDescriptionBuilder('123', 'test',{'bearer_test':{'scheme': 'bearer'}}).build() == {
         'id': '123',
         'name': 'test',
-        'security': ['rsa'],
+        'securityDefinitions': {'bearer_test':{'scheme': 'bearer'}},
+        'security': ['bearer_test'],
         'properties': {},
         'actions': {},
         'events': {},
@@ -115,6 +117,7 @@ def test_td_builder_add_property():
     assert td.build() == {
         'id': '123',
         'name': 'test',
+        'securityDefinitions': {},
         'security': [],
         'properties': {
             'status': {
@@ -135,6 +138,7 @@ def test_td_builder_add_action():
     assert td.build() == {
         'id': '123',
         'name': 'test',
+        'securityDefinitions': {},
         'security': [],
         'properties': {},
         'actions': {
@@ -160,6 +164,7 @@ def test_td_builder_add_event():
     assert td.build() == {
         'id': '123',
         'name': 'test',
+        'securityDefinitions': {},
         'security': [],
         'properties': {},
         'actions': {},

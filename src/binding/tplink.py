@@ -63,7 +63,17 @@ def _produce_blueprint(address, prefix):
 
 def _build_td(prefix, alias, address):
     hostname = current_app.config['HOSTNAME']
-    td=ThingDescriptionBuilder('urn:{}'.format(prefix), alias)
+
+    security = {
+        'bearer_token': {
+            'scheme': 'bearer',
+            'alg': 'HS256',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
+
+    td=ThingDescriptionBuilder('urn:{}'.format(prefix), alias, security=security)
     plug = SmartPlug(address)
 
     schema = ObjectBuilder()

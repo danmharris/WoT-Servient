@@ -13,7 +13,7 @@ def add_form(interaction, name, href, content_type='application/json'):
         }
 
 class ThingDescriptionBuilder(object):
-    def __init__(self, id, name, security=list()):
+    def __init__(self, id, name, security=dict()):
         self.id = id
         self.name = name
         self.security = security
@@ -38,7 +38,8 @@ class ThingDescriptionBuilder(object):
         return {
             'id': self.id,
             'name': self.name,
-            'security': self.security,
+            'security': list(self.security.keys()),
+            'securityDefinitions': self.security,
             'properties': self.properties,
             'actions': self.actions,
             'events': self.events

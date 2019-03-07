@@ -204,5 +204,13 @@ def test_get_td(client):
                 'type': 'object'
             }
         },
-        'security': []
+        'security': ['bearer_token'],
+        'securityDefinitions': {
+            'bearer_token': {
+                'scheme': 'bearer',
+                'alg': 'HS256',
+                'in': 'header',
+                'name': 'Authorization'
+            }
+        },
     }]

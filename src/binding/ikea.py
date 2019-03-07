@@ -100,7 +100,16 @@ def _produce_blueprint(prefix, device_info):
 
 def _generate_td(prefix, device_info):
     hostname = current_app.config['HOSTNAME']
-    td = ThingDescriptionBuilder('urn:{}'.format(prefix), device_info['9001'])
+
+    security = {
+        'bearer_token': {
+            'scheme': 'bearer',
+            'alg': 'HS256',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
+    td = ThingDescriptionBuilder('urn:{}'.format(prefix), device_info['9001'], security=security)
 
     schema = ObjectBuilder()
     schema.add_number('state')
