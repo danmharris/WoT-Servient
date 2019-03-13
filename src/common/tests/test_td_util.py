@@ -132,6 +132,28 @@ def test_td_builder_add_property():
         'events': {},
     }
 
+def test_td_builder_add_observable_property():
+    td = ThingDescriptionBuilder('123', 'test')
+    td.add_property('status', 'http://example.com', StringBuilder().build(), True)
+    assert td.build() == {
+        'id': '123',
+        'name': 'test',
+        'securityDefinitions': {},
+        'security': [],
+        'properties': {
+            'status': {
+                'forms': [{
+                    'href': 'http://example.com',
+                    'contentType': 'application/json'
+                }],
+                'type': 'string',
+                'observable': True,
+            }
+        },
+        'actions': {},
+        'events': {},
+    }
+
 def test_td_builder_add_action():
     td = ThingDescriptionBuilder('123', 'test')
     td.add_action('toggle', 'http://example.com', NumberBuilder().build(), StringBuilder().build())
