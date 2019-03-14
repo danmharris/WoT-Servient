@@ -8,9 +8,6 @@ from requests.exceptions import Timeout, ConnectionError
 import asyncio
 from aiocoap.numbers.codes import GET
 
-#TODO: Test that these endpoints actually save into the database
-# Retrieve database after request made and check contents
-
 class Response(object):
     def __init__(self, payload):
         self.payload = payload
@@ -71,6 +68,12 @@ def test_add(client):
         'url': 'http://example.com'
     })
     assert response.status_code == 201
+
+    get_response = client.get('/proxy/{}/details'.format(response.get_json()['uuid']))
+    assert get_response.status_code == 200
+    assert get_response.get_json() == {
+        'url': 'http://example.com'
+    }
 
 def test_details(client):
     response = client.get('/proxy/123/details')
@@ -139,6 +142,11 @@ def test_update(client):
     assert response.status_code == 200
     assert response.get_json() == {
         'message': 'Updated'
+    }
+
+    update_response = client.get('/proxy/123/details')
+    assert update_response.get_json() == {
+        'url': 'http://test.xyz'
     }
 
 def test_update_404(client):
