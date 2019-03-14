@@ -7,6 +7,7 @@ import shelve
 import os
 from unittest.mock import patch
 import requests
+from flask import Response
 
 @pytest.fixture
 def app():
@@ -73,6 +74,7 @@ def test_query_groups_none(client):
 def test_register(client):
     """ Test /things/register POST endpoint """
     with patch('requests.post', autospec=True) as mock_requests:
+        mock_requests.return_value.json.return_value = {'uuid': '123456'}
         response = client.post('/things/register',
             json={
                 'schema': {
@@ -93,6 +95,56 @@ def test_register(client):
         mock_requests.assert_called_once_with('http://localhost/proxy/add', json={
             'url': 'http://example.com'
         }, headers={'Authorization': 'bearer token'})
+
+        get_response = client.get('/things/{}'.format(response.get_json()['id']))
+        assert get_response.get_json() == {
+            'schema': {
+                'name': 'test3'
+            },
+            'properties': {
+                'status': {
+                    'forms': [{
+                        'href': 'http://localhost/proxy/123456'
+                    }]
+                }
+            }
+        }
+
+def test_register_observable(client):
+    """ Test /things/register with an endpoint that should not be proxied """
+    with patch('requests.post', autospec=True) as mock_requests:
+        mock_requests.return_value.json.return_value = {'uuid': '123456'}
+        response = client.post('/things/register',
+            json={
+                'schema': {
+                    'name': 'test3'
+                },
+                'properties': {
+                    'status': {
+                        'observable': True,
+                        'forms': [{
+                            'href': 'coap://example.com'
+                        }]
+                    }
+                }
+            })
+        assert response.status_code == 201
+        mock_requests.assert_not_called()
+
+        get_response = client.get('/things/{}'.format(response.get_json()['id']))
+        assert get_response.get_json() == {
+            'schema': {
+                'name': 'test3'
+            },
+            'properties': {
+                'status': {
+                    'observable': True,
+                    'forms': [{
+                        'href': 'coap://example.com'
+                    }]
+                }
+            }
+        }
 
 def test_register_timeout(client):
     """ Test /things/register endpoint when proxy cannot be reached """
