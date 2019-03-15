@@ -8,6 +8,8 @@ import os
 from unittest.mock import patch
 import requests
 from flask import Response
+from common.coap_fixtures import Request, context, message
+from aiocoap.numbers.codes import GET
 
 @pytest.fixture
 def app():
@@ -96,7 +98,7 @@ def test_register(client):
             'url': 'http://example.com'
         }, headers={'Authorization': 'bearer token'})
 
-        get_response = client.get('/things/{}'.format(response.get_json()['id']))
+        get_response = client.get('/things/{}'.format(response.get_json()['uuids'][0]))
         assert get_response.get_json() == {
             'schema': {
                 'name': 'test3'
@@ -131,7 +133,7 @@ def test_register_observable(client):
         assert response.status_code == 201
         mock_requests.assert_not_called()
 
-        get_response = client.get('/things/{}'.format(response.get_json()['id']))
+        get_response = client.get('/things/{}'.format(response.get_json()['uuids'][0]))
         assert get_response.get_json() == {
             'schema': {
                 'name': 'test3'
@@ -145,6 +147,22 @@ def test_register_observable(client):
                 }
             }
         }
+
+def test_register_multiple(client):
+    """ Test/things/register with multiple descriptions """
+    with patch('requests.post', autospec=True):
+        response = client.post('/things/register',
+        json=[
+            {'name': 'test4'},
+            {'name': 'test5'},
+        ])
+
+        assert response.status_code == 201
+        assert len(response.get_json()['uuids']) == 2
+
+        for uuid in response.get_json()['uuids']:
+            get_response = client.get('/things/{}'.format(uuid))
+            assert get_response.status_code == 200
 
 def test_register_timeout(client):
     """ Test /things/register endpoint when proxy cannot be reached """
@@ -167,6 +185,74 @@ def test_register_timeout(client):
         assert response.get_json() == {
             'message': 'Could not reach proxy'
         }
+
+def test_register_url_http(client):
+    with patch('requests.get', autospec=True) as mock_request:
+        mock_request.return_value.json.return_value = {'name': 'test'}
+        response = client.post('/things/register_url', json={
+            'url': 'http://example.com',
+        })
+
+        assert response.status_code == 201
+        mock_request.assert_called_once_with('http://example.com')
+
+        get_response = client.get('/things/{}'.format(response.get_json()['uuid']))
+        assert get_response.status_code == 200
+        assert get_response.get_json() == {'name': 'test'}
+
+def test_register_url_coap(client, context, message):
+    context.return_value.request.side_effect = [Request(b'{"name": "test"}')]
+    response = client.post('/things/register_url', json={
+        'url': 'coap://example.com',
+    })
+
+    assert response.status_code == 201
+    message.assert_called_once_with(uri='coap://example.com', code=GET)
+
+    get_response = client.get('/things/{}'.format(response.get_json()['uuid']))
+    assert get_response.status_code == 200
+    assert get_response.get_json() == {'name': 'test'}
+
+def test_register_url_coap_err(client, context, message):
+    context.return_value.request.side_effect = [Request(b'not JSON')]
+    response = client.post('/things/register_url', json={
+        'url': 'coap://example.com',
+    })
+
+    assert response.status_code == 400
+    assert response.get_json() == {
+        'message': 'Error getting schema at URL'
+    }
+
+def test_register_url_missing(client):
+    response = client.post('/things/register_url')
+    assert response.status_code == 400
+    assert response.get_json() == {
+        'message': 'Missing data URL',
+    }
+
+def test_register_url_not_td(client):
+    with patch('requests.get', autospec=True) as mock_request:
+        mock_request.return_value.json.side_effect = ValueError()
+        response = client.post('/things/register_url', json={
+            'url': 'http://example.com',
+        })
+
+        assert response.status_code == 400
+        mock_request.assert_called_once_with('http://example.com')
+        assert response.get_json() == {
+            'message': 'Error getting schema at URL'
+        }
+
+def test_register_url_no_protocol(client):
+    response = client.post('/things/register_url', json={
+        'url': 'smtp://example.com',
+    })
+
+    assert response.status_code == 501
+    assert response.get_json() == {
+        'message': 'Cannot parse this URL',
+    }
 
 def test_add_group(client):
     """ Test /things/<uuid>/groups POST request """

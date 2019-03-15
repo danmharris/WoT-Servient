@@ -5,6 +5,9 @@ from common.db import get_db
 from common.exception import APIException
 from common.auth import check_auth
 import requests
+import json
+import asyncio, aiocoap
+from aiocoap.numbers.codes import GET
 
 bp = Blueprint('directory', __name__, url_prefix='/things')
 bp.before_request(check_auth)
@@ -57,11 +60,8 @@ def add_proxy_endpoints(host, properties):
             }, headers=headers)
             form['href'] = '{}/proxy/{}'.format(host, res.json()['uuid'])
 
-@bp.route('/register', methods=['POST'])
-def register():
-    # Needs to validate input
-    s = get_db()
-    new_thing = Thing(s, request.get_json(), uuid.uuid4().hex)
+def _register_thing(s, schema):
+    new_thing = Thing(s, schema, uuid.uuid4().hex)
 
     if 'PROXY' in current_app.config:
         try:
@@ -70,8 +70,62 @@ def register():
             raise APIException('Could not reach proxy', 504)
 
     new_thing.save()
+    return new_thing.uuid
+
+@bp.route('/register', methods=['POST'])
+def register():
+    # If only a single description provided wrap in a list
+    data = request.get_json()
+    if type(data) == dict:
+        data = [data]
+    s = get_db()
+
+    uuids = list()
+    for thing in data:
+        uuids.append(_register_thing(s, thing))
+
     response = {
-        "id": new_thing.uuid
+        "uuids": uuids,
+    }
+    return (jsonify(response), 201, None)
+
+async def _coap_request(url):
+    c = await aiocoap.Context.create_client_context()
+    message = aiocoap.Message(code=GET, uri=url)
+    response = await c.request(message).response
+    return json.loads(response.payload)
+
+@bp.route('/register_url', methods=['POST'])
+def register_url():
+    data = request.get_json()
+    if data is None:
+        url = None
+    else:
+        url = request.get_json().get('url', None)
+
+    if url is None:
+        raise APIException('Missing data URL')
+
+    s = get_db()
+    if 'http' in url:
+        try:
+            td_response = requests.get(url)
+            td = td_response.json()
+        except:
+            raise APIException('Error getting schema at URL')
+
+        uuid = _register_thing(s, td)
+    elif 'coap' in url:
+        try:
+            td = asyncio.new_event_loop().run_until_complete(_coap_request(url))
+        except:
+            raise APIException('Error getting schema at URL')
+
+        uuid = _register_thing(s, td)
+    else:
+        raise APIException('Cannot parse this URL', 501)
+    response = {
+        'uuid': uuid,
     }
     return (jsonify(response), 201, None)
 
