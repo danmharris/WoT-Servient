@@ -45,15 +45,30 @@ The thing description to be parsed and added
 * 201: The thing has been successfully registered on the directory
 ```json
 {
-    "id": "abc123"
+    "uuids": ["abc123"]
 }
 ```
 * 504: The directory could not reach the proxy to add endpoints
+
+### `POST /things/register_url`
+Register a Thing whose description is at the given URL
+#### Data
+The URL of the thing description
 ```json
 {
-    "message": "Could not reach proxy"
+    "url": "http://example.com"
 }
 ```
+#### Returns
+* 201: The thing is successfully registered
+```json
+{
+    "uuid": "123"
+}
+```
+* 400: Failure requesting schema (either not present or malformed)
+* 501: Attempting to request URL directory does not support (currently only http and coap)
+* 504: The directory could not reach the proxy
 
 ### `GET /things/query`
 Query the directory based on a property (e.g. group)
