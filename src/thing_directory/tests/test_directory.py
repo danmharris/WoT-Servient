@@ -96,7 +96,7 @@ def test_register(client):
             'url': 'http://example.com'
         }, headers={'Authorization': 'bearer token'})
 
-        get_response = client.get('/things/{}'.format(response.get_json()['id']))
+        get_response = client.get('/things/{}'.format(response.get_json()['uuids'][0]))
         assert get_response.get_json() == {
             'schema': {
                 'name': 'test3'
@@ -131,7 +131,7 @@ def test_register_observable(client):
         assert response.status_code == 201
         mock_requests.assert_not_called()
 
-        get_response = client.get('/things/{}'.format(response.get_json()['id']))
+        get_response = client.get('/things/{}'.format(response.get_json()['uuids'][0]))
         assert get_response.get_json() == {
             'schema': {
                 'name': 'test3'
@@ -145,6 +145,22 @@ def test_register_observable(client):
                 }
             }
         }
+
+def test_register_multiple(client):
+    """ Test/things/register with multiple descriptions """
+    with patch('requests.post', autospec=True):
+        response = client.post('/things/register',
+        json=[
+            {'name': 'test4'},
+            {'name': 'test5'},
+        ])
+
+        assert response.status_code == 201
+        assert len(response.get_json()['uuids']) == 2
+
+        for uuid in response.get_json()['uuids']:
+            get_response = client.get('/things/{}'.format(uuid))
+            assert get_response.status_code == 200
 
 def test_register_timeout(client):
     """ Test /things/register endpoint when proxy cannot be reached """

@@ -59,19 +59,27 @@ def add_proxy_endpoints(host, properties):
 
 @bp.route('/register', methods=['POST'])
 def register():
-    # Needs to validate input
+    # If only a single description provided wrap in a list
+    data = request.get_json()
+    if type(data) == dict:
+        data = [data]
     s = get_db()
-    new_thing = Thing(s, request.get_json(), uuid.uuid4().hex)
 
-    if 'PROXY' in current_app.config:
-        try:
-            add_proxy_endpoints(current_app.config['PROXY'], new_thing.schema.get('properties', dict()))
-        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-            raise APIException('Could not reach proxy', 504)
+    uuids = list()
+    for thing in data:
+        new_thing = Thing(s, thing, uuid.uuid4().hex)
 
-    new_thing.save()
+        if 'PROXY' in current_app.config:
+            try:
+                add_proxy_endpoints(current_app.config['PROXY'], new_thing.schema.get('properties', dict()))
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+                raise APIException('Could not reach proxy', 504)
+
+        new_thing.save()
+        uuids.append(new_thing.uuid)
+
     response = {
-        "id": new_thing.uuid
+        "uuids": uuids,
     }
     return (jsonify(response), 201, None)
 
