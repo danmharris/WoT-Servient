@@ -117,7 +117,7 @@ def register_url():
         uuid = _register_thing(s, td)
     elif 'coap' in url:
         try:
-            td = asyncio.get_event_loop().run_until_complete(_coap_request(url))
+            td = asyncio.new_event_loop().run_until_complete(_coap_request(url))
         except:
             raise APIException('Error getting schema at URL')
 

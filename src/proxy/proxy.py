@@ -49,7 +49,7 @@ def req(uuid):
             response.headers['Content-Type'] = redis.hget(uuid, 'content_type')
         else:
             if 'coap://' in endpoint.url:
-                data = asyncio.get_event_loop().run_until_complete(_coap_request(endpoint.url))
+                data = asyncio.new_event_loop().run_until_complete(_coap_request(endpoint.url))
                 redis.hset(uuid, 'data', data)
                 redis.expire(uuid, 30)
                 response = Response(data)
