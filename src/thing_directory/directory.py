@@ -42,19 +42,20 @@ def query():
     return jsonify(matching)
 
 def add_proxy_endpoints(host, properties):
+    # Don't want to proxy observable endpoints as client needs to request those directly
+    properties = { k: p for k, p in properties.items() if p.get('observable', False) is not True }
     for prop in properties:
-        if 'forms' in properties[prop]:
-            for form in properties[prop]['forms']:
-                if 'href' in form:
-                    #Add to proxy
-                    if 'Authorization' in request.headers:
-                        headers = {'Authorization': request.headers['Authorization']}
-                    else:
-                        headers = None
-                    res = requests.post(host+'/proxy/add', json={
-                        'url': form['href']
-                    }, headers=headers)
-                    form['href'] = '{}/proxy/{}'.format(host, res.json()['uuid'])
+        forms = [ f for f in properties[prop].get('forms', list()) if 'href' in f]
+        for form in forms:
+            # Forward Auth header
+            if 'Authorization' in request.headers:
+                headers = {'Authorization': request.headers['Authorization']}
+            else:
+                headers = None
+            res = requests.post(host+'/proxy/add', json={
+                'url': form['href']
+            }, headers=headers)
+            form['href'] = '{}/proxy/{}'.format(host, res.json()['uuid'])
 
 @bp.route('/register', methods=['POST'])
 def register():

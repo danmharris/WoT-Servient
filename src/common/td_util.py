@@ -20,10 +20,12 @@ class ThingDescriptionBuilder(object):
         self.properties = dict()
         self.events = dict()
         self.actions = dict()
-    def add_property(self, prop, href, schema=None):
+    def add_property(self, prop, href, schema=None, observable=False):
         add_form(self.properties, prop, href)
         if schema is not None:
             self.properties[prop] = dict(schema, **self.properties[prop])
+        if observable == True:
+            self.properties[prop]['observable'] = True
     def add_action(self, name, href, input=None, output=None):
         add_form(self.actions, name, href)
         if input is not None:

@@ -5,6 +5,10 @@ from common.redis import get_redis
 from common.exception import APIException
 from common.auth import check_auth_exclude
 import requests
+import asyncio
+import aiocoap
+from aiocoap.numbers.codes import GET
+import json
 
 bp = Blueprint('proxy', __name__, url_prefix='/proxy')
 bp.before_request(check_auth_exclude(['proxy.req']))
@@ -28,29 +32,34 @@ def get(uuid):
         'url': endpoint.url,
     })
 
-@bp.route('/<uuid>', methods=['GET','POST'])
+async def _coap_request(url):
+    c = await aiocoap.Context.create_client_context()
+    message = aiocoap.Message(code=GET, uri=url)
+    response = await c.request(message).response
+    return response.payload
+
+@bp.route('/<uuid>', methods=['GET'])
 def req(uuid):
     s = get_db()
     endpoint = Endpoint.get_by_uuid(s, uuid)
     redis = get_redis()
     try:
-        if request.method == 'GET' and redis.exists(uuid):
+        if redis.exists(uuid):
             response = Response(redis.hget(uuid, 'data'))
             response.headers['Content-Type'] = redis.hget(uuid, 'content_type')
         else:
-            print('making request!')
-            if request.method == 'GET':
+            if 'coap://' in endpoint.url:
+                data = asyncio.get_event_loop().run_until_complete(_coap_request(endpoint.url))
+                redis.hset(uuid, 'data', data)
+                redis.expire(uuid, 30)
+                response = Response(data)
+            else:
                 r = requests.get(endpoint.url, timeout=1, headers=request.headers)
                 redis.hset(uuid, 'data', r.text)
                 redis.hset(uuid, 'content_type', r.headers['content-type'])
                 redis.expire(uuid, 30)
-            elif request.method == 'POST':
-                if request.is_json:
-                    r = requests.post(endpoint.url, json=request.get_json(), headers=request.headers)
-                else:
-                    r = requests.post(endpoint.url, data=request.data, headers=request.headers)
-            response = Response(r.text)
-            response.headers['Content-Type'] = r.headers['content-type']
+                response = Response(r.text)
+                response.headers['Content-Type'] = r.headers['content-type']
         return response
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
         raise APIException('Cannot reach thing', 504)
