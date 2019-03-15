@@ -3,7 +3,7 @@ from common.td_util import ThingDescriptionBuilder, ObjectBuilder, StringBuilder
 from binding.producer import Producer
 import asyncio
 import json
-from aiocoap import Message, Context
+import aiocoap
 from aiocoap.numbers.codes import PUT, GET, POST
 
 # API Information was read from https://github.com/glenndehaan/ikea-tradfri-coap-docs
@@ -27,7 +27,7 @@ class IKEAProducer(Producer):
 async def _create_context():
     config = current_app.config['IKEA']
 
-    c = await Context.create_client_context()
+    c = await aiocoap.Context.create_client_context()
     c.client_credentials.load_from_dict({
         'coaps://{}:5684/*'.format(config['gateway']): {
             'dtls': {
@@ -42,20 +42,20 @@ async def _get_device_info(address, c=None):
     config = current_app.config['IKEA']
     if c is None:
         c = await _create_context()
-    device_info_request = Message(code=GET, uri='coaps://{}:5684/15001/{}'.format(config['gateway'], address))
+    device_info_request = aiocoap.Message(code=GET, uri='coaps://{}:5684/15001/{}'.format(config['gateway'], address))
     device_info_response = await c.request(device_info_request).response
     return json.loads(device_info_response.payload)
 
 async def _set_state(payload, address):
     config = current_app.config['IKEA']
     c = await _create_context()
-    request = Message(code=PUT, payload=payload, uri='coaps://{}:5684/15001/{}'.format(config['gateway'], address))
+    request = aiocoap.Message(code=PUT, payload=payload, uri='coaps://{}:5684/15001/{}'.format(config['gateway'], address))
     await c.request(request).response
 
 async def discover():
     config = current_app.config['IKEA']
     c = await _create_context()
-    devices_request = Message(code=GET, uri='coaps://{}:5684/15001'.format(config['gateway']))
+    devices_request = aiocoap.Message(code=GET, uri='coaps://{}:5684/15001'.format(config['gateway']))
     devices_response = await c.request(devices_request).response
     found_devices = json.loads(devices_response.payload)
 
