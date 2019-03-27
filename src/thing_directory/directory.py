@@ -60,32 +60,32 @@ def add_proxy_endpoints(host, properties):
             }, headers=headers)
             form['href'] = '{}/proxy/{}'.format(host, res.json()['uuid'])
 
-def _register_thing(s, schema):
-    new_thing = Thing(s, schema, uuid.uuid4().hex)
+def _register_things(s, data):
+    if type(data) == dict:
+        data = [data]
 
-    if 'PROXY' in current_app.config:
-        try:
-            add_proxy_endpoints(current_app.config['PROXY'], new_thing.schema.get('properties', dict()))
-        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-            raise APIException('Could not reach proxy', 504)
+    uuids = list()
+    for schema in data:
+        new_thing = Thing(s, schema, uuid.uuid4().hex)
 
-    new_thing.save()
-    return new_thing.uuid
+        if 'PROXY' in current_app.config:
+            try:
+                add_proxy_endpoints(current_app.config['PROXY'], new_thing.schema.get('properties', dict()))
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+                raise APIException('Could not reach proxy', 504)
+
+        new_thing.save()
+        uuids.append(new_thing.uuid)
+    return uuids
 
 @bp.route('/register', methods=['POST'])
 def register():
     # If only a single description provided wrap in a list
     data = request.get_json()
-    if type(data) == dict:
-        data = [data]
     s = get_db()
 
-    uuids = list()
-    for thing in data:
-        uuids.append(_register_thing(s, thing))
-
     response = {
-        "uuids": uuids,
+        "uuids": _register_things(s, data),
     }
     return (jsonify(response), 201, None)
 
@@ -110,22 +110,22 @@ def register_url():
     if 'http' in url:
         try:
             td_response = requests.get(url)
-            td = td_response.json()
+            tds = td_response.json()
         except:
             raise APIException('Error getting schema at URL')
 
-        uuid = _register_thing(s, td)
+        uuids = _register_things(s, tds)
     elif 'coap' in url:
         try:
-            td = asyncio.new_event_loop().run_until_complete(_coap_request(url))
+            tds = asyncio.new_event_loop().run_until_complete(_coap_request(url))
         except:
             raise APIException('Error getting schema at URL')
 
-        uuid = _register_thing(s, td)
+        uuids = _register_things(s, tds)
     else:
         raise APIException('Cannot parse this URL', 501)
     response = {
-        'uuid': uuid,
+        'uuids': uuids,
     }
     return (jsonify(response), 201, None)
 

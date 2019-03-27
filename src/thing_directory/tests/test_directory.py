@@ -196,7 +196,7 @@ def test_register_url_http(client):
         assert response.status_code == 201
         mock_request.assert_called_once_with('http://example.com')
 
-        get_response = client.get('/things/{}'.format(response.get_json()['uuid']))
+        get_response = client.get('/things/{}'.format(response.get_json()['uuids'][0]))
         assert get_response.status_code == 200
         assert get_response.get_json() == {'name': 'test'}
 
@@ -209,7 +209,7 @@ def test_register_url_coap(client, context, message):
     assert response.status_code == 201
     message.assert_called_once_with(uri='coap://example.com', code=GET)
 
-    get_response = client.get('/things/{}'.format(response.get_json()['uuid']))
+    get_response = client.get('/things/{}'.format(response.get_json()['uuids'][0]))
     assert get_response.status_code == 200
     assert get_response.get_json() == {'name': 'test'}
 
