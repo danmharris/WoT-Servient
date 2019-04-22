@@ -1,9 +1,15 @@
+"""Entry module for proxy Flask API"""
 from flask import Flask, jsonify
 from proxy import proxy
 from common.db import close_db
 from common.exception import APIException
 
 def create_app(app_config=None):
+    """Constructs the API with configuration if provided
+
+    Takes 1 argument (optional):
+    app_config: Dictionary of the config to be parsed
+    """
     app = Flask(__name__)
     if app_config is None:
         app.config['DB'] = 'endpoints.db'
@@ -15,6 +21,7 @@ def create_app(app_config=None):
 
     @app.errorhandler(APIException)
     def api_error_handler(err):
+        """Assign error handler to all endpoints when APIException thrown"""
         return (jsonify({'message': err.message}), err.status, None)
 
     return app
