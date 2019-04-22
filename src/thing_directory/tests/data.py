@@ -1,4 +1,5 @@
-data = {
+"""Sample data used for testing"""
+DATA = {
     '123': {
         'name':'test',
         'properties': {
