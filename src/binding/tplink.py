@@ -1,11 +1,12 @@
+"""This module contains code for creating a binding template for TP-LINK products"""
+
 from flask import Blueprint, jsonify, request, current_app
 from pyHS100 import Discover, SmartPlug
-from common.td_util import ThingDescriptionBuilder, ObjectBuilder, StringBuilder
+from common.td_util import ThingDescriptionBuilder, ObjectBuilder
 from binding.producer import Producer
 
 class TpLinkProducer(Producer):
-    def __init__(self):
-        super().__init__()
+    """Binding template for TP-LINK smart products"""
     def produce(self):
         discovered = list()
         for dev in Discover.discover().values():
@@ -16,25 +17,37 @@ class TpLinkProducer(Producer):
         return discovered
 
 def _produce_blueprint(address, prefix):
+    """Produces Flask blueprints for TP-LINK products
+
+    Takes two arguments:
+    address - IP address of the device
+    prefix - Prefix to prepend to all URIs
+    """
     bp = Blueprint(prefix, __name__, url_prefix=prefix)
     plug = SmartPlug(address)
 
     def get_emeter():
+        """Gets the Emeter values from the smart plug (if capable)"""
         return jsonify(plug.get_emeter_realtime())
 
     if plug.has_emeter:
-        bp.add_url_rule('/emeter',view_func=get_emeter)
-
-    #TODO: Add device type to data storage (e.g. SmartPlug, SmartBulb etc.)
+        bp.add_url_rule('/emeter', view_func=get_emeter)
 
     @bp.route('/state', methods=['GET'])
     def get_status():
+        """GET endpoint that returns the status of the device"""
         plug = SmartPlug(address)
         return jsonify({
             'state': plug.state
         })
 
     def _set_status(device, state):
+        """Set the status of a smart device
+
+        Takes two arguments:
+        device - Device to set state on
+        state - Either 'ON' or 'OFF'
+        """
         if state == 'ON':
             device.turn_on()
         elif state == 'OFF':
@@ -49,12 +62,19 @@ def _produce_blueprint(address, prefix):
 
     @bp.route('/state', methods=['POST'])
     def set_status():
+        """POST request that sets the status of the smart device
+
+        Requires JSON input with the state"""
         data = request.get_json()
         plug = SmartPlug(address)
         return _set_status(plug, data['state'])
 
     @bp.route('/state/toggle', methods=['POST'])
     def toggle():
+        """POST request which inverts the state
+
+        No input required
+        """
         plug = SmartPlug(address)
         new_state = 'OFF' if plug.state == 'ON' else 'ON'
         return _set_status(plug, new_state)
@@ -62,6 +82,13 @@ def _produce_blueprint(address, prefix):
     return bp
 
 def _build_td(prefix, alias, address):
+    """Build the thing descriptions for TP-LINK products
+
+    Takes three arguments:
+    prefix - prefix for this device (relative to this host)
+    alias - Name given to this device
+    address - IP address of device
+    """
     hostname = current_app.config['HOSTNAME']
 
     security = {
@@ -73,7 +100,7 @@ def _build_td(prefix, alias, address):
         }
     }
 
-    td=ThingDescriptionBuilder('urn:{}'.format(prefix), alias, security=security)
+    td = ThingDescriptionBuilder('urn:{}'.format(prefix), alias, security=security)
     plug = SmartPlug(address)
 
     schema = ObjectBuilder()
