@@ -1,18 +1,19 @@
-from thing_directory.app import create_app
-from .data import data
-from common.db import get_db, close_db
-import pytest
-import tempfile
-import shelve
+"""Pytests for directory Flask blueprint module"""
+# pylint: disable=redefined-outer-name, unused-argument, unused-import
+# Disabled these checkers as they conflict with pytest fixtures
 import os
 from unittest.mock import patch
+import pytest
 import requests
-from flask import Response
-from common.coap_fixtures import Request, context, message
 from aiocoap.numbers.codes import GET
+from thing_directory.app import create_app
+from common.db import get_db, close_db
+from common.coap_fixtures import Request, context, message
+from .data import DATA as data
 
 @pytest.fixture
 def app():
+    """Test Flask API with sample confuration and data"""
     db_path = 'test.db'
 
     app = create_app({
@@ -33,22 +34,23 @@ def app():
 
 @pytest.fixture
 def client(app):
+    """Client for test Flask API"""
     return app.test_client()
 
 def test_things(client):
-    """ Test the /things GET request """
+    """Test getting all things in directory"""
     response = client.get('/things')
     assert response.status_code == 200
     assert response.get_json() == data
 
 def test_thing_uuid(client):
-    """ Test /things/<uuid> GET request where the UUID exists """
+    """Test getting an individual thing description"""
     response = client.get('/things/123')
     assert response.status_code == 200
     assert response.get_json() == data['123']
 
 def test_thing_uuid_404(client):
-    """ Test /things/<uuid> GET request where the UUID doesn't exist """
+    """Test attempting to retrieve unknown thing description"""
     response = client.get('/things/abc')
     assert response.status_code == 404
     assert response.get_json() == {
@@ -56,7 +58,7 @@ def test_thing_uuid_404(client):
     }
 
 def test_query_groups(client):
-    """ Test /things/query GET request with match """
+    """Test querying by groups"""
     response = client.get('/things/query?groups=group1')
     assert response.status_code == 200
     print(response.get_json())
@@ -68,31 +70,31 @@ def test_query_groups(client):
     }
 
 def test_query_groups_none(client):
-    """ Test /things/query with no match """
+    """Test querying groups where no results found"""
     response = client.get('/things/query?groups=group2')
     assert response.status_code == 200
     assert response.get_json() == {}
 
 def test_register(client):
-    """ Test /things/register POST endpoint """
+    """Tests registering a new device"""
     with patch('requests.post', autospec=True) as mock_requests:
         mock_requests.return_value.json.return_value = {'uuid': '123456'}
         response = client.post('/things/register',
-            json={
-                'schema': {
-                    'name': 'test3'
-                },
-                'properties': {
-                    'status': {
-                        'forms': [{
-                            'href': 'http://example.com'
-                        }]
-                    }
-                }
-            },
-            headers={
-                'Authorization': 'bearer token',
-            })
+                               json={
+                                   'schema': {
+                                       'name': 'test3'
+                                   },
+                                   'properties': {
+                                       'status': {
+                                           'forms': [{
+                                               'href': 'http://example.com'
+                                           }]
+                                       }
+                                   }
+                               },
+                               headers={
+                                   'Authorization': 'bearer token',
+                               })
         assert response.status_code == 201
         mock_requests.assert_called_once_with('http://localhost/proxy/add', json={
             'url': 'http://example.com'
@@ -113,23 +115,23 @@ def test_register(client):
         }
 
 def test_register_observable(client):
-    """ Test /things/register with an endpoint that should not be proxied """
+    """Test registering a device with an observable endpoint (should not proxy)"""
     with patch('requests.post', autospec=True) as mock_requests:
         mock_requests.return_value.json.return_value = {'uuid': '123456'}
         response = client.post('/things/register',
-            json={
-                'schema': {
-                    'name': 'test3'
-                },
-                'properties': {
-                    'status': {
-                        'observable': True,
-                        'forms': [{
-                            'href': 'coap://example.com'
-                        }]
-                    }
-                }
-            })
+                               json={
+                                   'schema': {
+                                       'name': 'test3'
+                                   },
+                                   'properties': {
+                                       'status': {
+                                           'observable': True,
+                                           'forms': [{
+                                               'href': 'coap://example.com'
+                                           }]
+                                       }
+                                   }
+                               })
         assert response.status_code == 201
         mock_requests.assert_not_called()
 
@@ -149,13 +151,13 @@ def test_register_observable(client):
         }
 
 def test_register_multiple(client):
-    """ Test/things/register with multiple descriptions """
+    """Test registering multiple things at the same time"""
     with patch('requests.post', autospec=True):
         response = client.post('/things/register',
-        json=[
-            {'name': 'test4'},
-            {'name': 'test5'},
-        ])
+                               json=[
+                                   {'name': 'test4'},
+                                   {'name': 'test5'},
+                               ])
 
         assert response.status_code == 201
         assert len(response.get_json()['uuids']) == 2
@@ -165,28 +167,29 @@ def test_register_multiple(client):
             assert get_response.status_code == 200
 
 def test_register_timeout(client):
-    """ Test /things/register endpoint when proxy cannot be reached """
+    """Test registration where proxy cannot be reached"""
     with patch('requests.post', autospec=True) as mock_requests:
         mock_requests.side_effect = requests.exceptions.Timeout()
         response = client.post('/things/register',
-            json={
-                'schema': {
-                    'name': 'test3'
-                },
-                'properties': {
-                    'status': {
-                        'forms': [{
-                            'href': 'http://example.com'
-                        }]
-                    }
-                }
-            })
+                               json={
+                                   'schema': {
+                                       'name': 'test3'
+                                   },
+                                   'properties': {
+                                       'status': {
+                                           'forms': [{
+                                               'href': 'http://example.com'
+                                           }]
+                                       }
+                                   }
+                               })
         assert response.status_code == 504
         assert response.get_json() == {
             'message': 'Could not reach proxy'
         }
 
 def test_register_url_http(client):
+    """Test registering by URL"""
     with patch('requests.get', autospec=True) as mock_request:
         mock_request.return_value.json.return_value = {'name': 'test'}
         response = client.post('/things/register_url', json={
@@ -201,6 +204,7 @@ def test_register_url_http(client):
         assert get_response.get_json() == {'name': 'test'}
 
 def test_register_url_coap(client, context, message):
+    """Test registering by URL when is CoAP"""
     context.return_value.request.side_effect = [Request(b'{"name": "test"}')]
     response = client.post('/things/register_url', json={
         'url': 'coap://example.com',
@@ -214,6 +218,7 @@ def test_register_url_coap(client, context, message):
     assert get_response.get_json() == {'name': 'test'}
 
 def test_register_url_coap_err(client, context, message):
+    """Test attempting to register a CoAP URL when an error is returned"""
     context.return_value.request.side_effect = [Request(b'not JSON')]
     response = client.post('/things/register_url', json={
         'url': 'coap://example.com',
@@ -225,6 +230,7 @@ def test_register_url_coap_err(client, context, message):
     }
 
 def test_register_url_missing(client):
+    """Test attempting to register an empty URL"""
     response = client.post('/things/register_url')
     assert response.status_code == 400
     assert response.get_json() == {
@@ -232,6 +238,7 @@ def test_register_url_missing(client):
     }
 
 def test_register_url_not_td(client):
+    """Test attempting to register a URL which has no thing description"""
     with patch('requests.get', autospec=True) as mock_request:
         mock_request.return_value.json.side_effect = ValueError()
         response = client.post('/things/register_url', json={
@@ -245,6 +252,7 @@ def test_register_url_not_td(client):
         }
 
 def test_register_url_no_protocol(client):
+    """Test attempting to register a URL with an unknown protocol specified"""
     response = client.post('/things/register_url', json={
         'url': 'smtp://example.com',
     })
@@ -255,12 +263,12 @@ def test_register_url_no_protocol(client):
     }
 
 def test_add_group(client):
-    """ Test /things/<uuid>/groups POST request """
+    """Test adding a group"""
     initial_response = client.get('/things/123')
     assert initial_response.get_json() == data['123']
 
     update_response = client.post('/things/123/groups',
-        json = {'group': 'group2'})
+                                  json={'group': 'group2'})
     assert update_response.get_json() == {
         'message': 'updated'
     }
@@ -272,16 +280,16 @@ def test_add_group(client):
     }
 
 def test_add_group_404(client):
-    """ Test /things/<uuid>groups POST request where thing doesnt exist """
+    """Test attempting to add a group to an unknown device"""
     response = client.post('/things/abc/groups',
-        json = {'group': 'group2'})
+                           json={'group': 'group2'})
     assert response.status_code == 404
     assert response.get_json() == {
         'message': 'Thing not found',
     }
 
 def test_delete_group(client):
-    """ Test /things/<uuid>/groups<group> removes a group """
+    """Test removing a group"""
     initial_response = client.get('/things/456')
     assert initial_response.get_json()['groups'] == ['group1']
     response = client.delete('/things/456/groups/group1')
@@ -292,7 +300,7 @@ def test_delete_group(client):
     assert new_response.get_json()['groups'] == []
 
 def test_delete_group_404(client):
-    """ Test /things/<uuid>/groups/<group> 404s on nonexistent UUID """
+    """Test attempting to remove a group on an unknown device"""
     response = client.delete('/things/abc/groups/test')
     assert response.status_code == 404
     assert response.get_json() == {
@@ -300,7 +308,7 @@ def test_delete_group_404(client):
     }
 
 def test_delete(client):
-    """ Test /things/<uuid> DELETE request """
+    """Test deleting a device"""
     initial_response = client.get('/things')
     assert '123' in initial_response.get_json()
     delete_response = client.delete('/things/123')
@@ -311,7 +319,7 @@ def test_delete(client):
     assert '123' not in new_response.get_json()
 
 def test_delete_404(client):
-    """ Test /things/<uuid> DELETE request where thing doesnt exist """
+    """Test attempting to delete an unknown device"""
     response = client.delete('/things/abc')
     assert response.status_code == 404
     assert response.get_json() == {

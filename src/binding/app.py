@@ -1,10 +1,13 @@
+"""Main entry point for binding Flask API"""
 from flask import Flask, jsonify
 from binding import tplink, ikea
 from common.auth import check_auth
 
-#TODO: Add Thing Description builder based on database
-
 def create_app(app_config=None):
+    """Creates Flask APP
+
+    Optionally takes configuration file as dictionary, this will be parsed if present
+    """
     app = Flask(__name__)
     if app_config is None:
         app.config['BINDINGS'] = ['tplink', 'ikea']
@@ -34,6 +37,7 @@ def create_app(app_config=None):
 
     @app.route('/', methods=['GET'])
     def get_descriptions():
+        """GET request that returns thing descriptions for all devices found"""
         return jsonify(list(descriptions.values()))
 
     return app
