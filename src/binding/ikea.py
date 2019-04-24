@@ -44,7 +44,7 @@ async def _get_device_info(address, c=None):
         c = await _create_context()
     device_info_request = aiocoap.Message(code=GET, uri='coaps://{}:5684/15001/{}'.format(config['gateway'], address))
     device_info_response = await c.request(device_info_request).response
-    return json.loads(device_info_response.payload)
+    return json.loads(device_info_response.payload.decode())
 
 async def _set_state(payload, address):
     config = current_app.config['IKEA']
@@ -57,7 +57,7 @@ async def discover():
     c = await _create_context()
     devices_request = aiocoap.Message(code=GET, uri='coaps://{}:5684/15001'.format(config['gateway']))
     devices_response = await c.request(devices_request).response
-    found_devices = json.loads(devices_response.payload)
+    found_devices = json.loads(devices_response.payload.decode())
 
     discovered = list()
     for dev in found_devices:
