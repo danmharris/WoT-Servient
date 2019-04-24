@@ -19,9 +19,12 @@ Modules which can be used across all of these services, such as wrappers for She
 ## Installation
 These services have been bundled with setuptools and contain systemd units for allowing them to be started automatically on boot.
 
-They can be installed by running `sudo ./install.sh`, which will install the services under a python venv in `/opt/wot-network`.
+They can be installed by running `sudo ./install.sh`, which will install the services under a python venv in `/opt/wot-network`. The configuration file at `/etc/wot-network.ini` will then need updating.
 
 Running this script provides the following systemd units:
 * `wot-td.service`
 * `wot-proxy.service`
 * `wot-binding.service`
+* `wot-coap-thing.service`
+
+This also installs a command line utility, which can be found in `/opt/wot-network/bin/wot-cli`. This allos for generation of API keys and credentials to connect to IKEA products.
