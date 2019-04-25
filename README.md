@@ -1,6 +1,6 @@
-# COMP3200 Part III Project
-[![Build Status](https://travis-ci.com/danmharris/Part-III-Project.svg?token=4oghhh56MPM4pzayFJhw&branch=master)](https://travis-ci.com/danmharris/Part-III-Project)
-## Building a Web of Things Network
+# WoT Servient
+[![Build Status](https://travis-ci.com/danmharris/WoT-Servient.svg?token=4oghhh56MPM4pzayFJhw&branch=master)](https://travis-ci.com/danmharris/WoT-Servient)
+
 The aim of this project is to create a network that provides interopability that will work with new devices and legacy IoT devices. The network will follow (as closely as possible) the reccomendation being developed by [W3](https://www.w3.org/WoT/WG/).
 
 ## Services
