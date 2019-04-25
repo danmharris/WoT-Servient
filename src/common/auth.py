@@ -25,11 +25,10 @@ def check_auth():
         if header is not None:
             try:
                 token = header.split(' ')[1]
+                jwt.decode(token, current_app.config.get('SECRET'), algorithms=['HS256'])
+                return
             except IndexError:
                 pass
-            try:
-                jwt.decode(token, current_app.config.get('SECRET'), algorithm='HS256')
-                return
             except jwt.InvalidTokenError:
                 pass
         return (jsonify({
