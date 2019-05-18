@@ -102,7 +102,7 @@ async def _coap_request(url):
     c = await aiocoap.Context.create_client_context()
     message = aiocoap.Message(code=GET, uri=url)
     response = await c.request(message).response
-    return json.loads(response.payload)
+    return json.loads(response.payload.decode())
 
 @bp.route('/register_url', methods=['POST'])
 def register_url():
