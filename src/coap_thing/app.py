@@ -36,7 +36,7 @@ class PropertyResource(resource.ObservableResource):
 
     async def render_put(self, request):
         """Updates the state when a PUT request is performed"""
-        payload = json.loads(request.payload)
+        payload = json.loads(request.payload.decode())
         self.content = {
             'state': payload['state']
         }
