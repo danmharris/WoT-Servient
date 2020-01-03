@@ -5,7 +5,7 @@
 from unittest.mock import call
 import pytest
 from aiocoap.numbers.codes import GET, PUT
-from binding.app import create_app
+from wot.binding.app import create_app
 from wot.common.coap_fixtures import Request, context, message
 
 @pytest.fixture

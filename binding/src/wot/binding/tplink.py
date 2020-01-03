@@ -3,7 +3,7 @@
 from flask import Blueprint, jsonify, request, current_app
 from pyHS100 import Discover, SmartPlug
 from wot.common.td_util import ThingDescriptionBuilder, ObjectBuilder
-from binding.producer import Producer
+from wot.binding.producer import Producer
 
 class TpLinkProducer(Producer):
     """Binding template for TP-LINK smart products"""

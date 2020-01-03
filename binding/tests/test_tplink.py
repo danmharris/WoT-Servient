@@ -3,12 +3,12 @@
 # Disabled these checkers as they incorrectly mark pytest fixtures
 from unittest.mock import MagicMock, patch
 import pytest
-from binding.app import create_app
+from wot.binding.app import create_app
 
 @pytest.fixture()
 def smart_plug():
     """Fixture which stubs the PYHS100 methods for a smart plug"""
-    with patch('binding.tplink.SmartPlug', autospec=True) as mock_smart_plug:
+    with patch('wot.binding.tplink.SmartPlug', autospec=True) as mock_smart_plug:
         mock_smart_plug.return_value.state = 'OFF'
         mock_smart_plug.return_value.has_emeter = True
         mock_smart_plug.return_value.get_emeter_realtime.return_value = {
@@ -38,7 +38,7 @@ def client(app):
 @pytest.fixture(autouse=True)
 def discover():
     """Stubs PYHS100 discovery method, set to use on all tests"""
-    with patch('binding.tplink.Discover.discover') as mock_discover:
+    with patch('wot.binding.tplink.Discover.discover') as mock_discover:
         smart_device = MagicMock()
         smart_device.alias = 'SmartPlug'
         smart_device.host = '10.0.0.3'

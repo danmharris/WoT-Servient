@@ -1,6 +1,6 @@
 """Main entry point for binding Flask API"""
 from flask import Flask, jsonify
-from binding import tplink, ikea
+from wot.binding import tplink, ikea
 from wot.common.auth import check_auth
 
 def create_app(app_config=None):
