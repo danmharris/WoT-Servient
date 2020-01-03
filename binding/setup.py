@@ -9,6 +9,7 @@ setup(
         'Flask>=1.1.1',
         'requests>=2.21.0',
         'aiocoap[all]==0.4b1',
+        'pyHS100>=0.3.4',
         ],
     author="Dan Harris",
     description="Binding Template microservice in the WoT Servient",
