@@ -2,6 +2,9 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install -r ./requirements-dev.txt
+  - pip install common/
+  - pip install binding/
+  - pip install proxy/
+  - pip install thing_directory/
 script:
   - pytest
