@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify, Response
 import requests
 import aiocoap
 from aiocoap.numbers.codes import GET
-from proxy.endpoint import Endpoint
+from wot.proxy.endpoint import Endpoint
 from wot.common.db import get_db
 from wot.common.redis import get_redis
 from wot.common.exception import APIException

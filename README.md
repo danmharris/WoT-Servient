@@ -7,7 +7,7 @@ The aim of this project is to create a network that provides interopability that
 ### [Thing Directory](thing_directory/)
 A resource directory which contains thing descriptions of all the things found on the network that can be interacted with. This integrates with the proxy to rewrote URLs in thing descriptions on registration to go through the proxy.
 
-### [Proxy](src/proxy/)
+### [Proxy](proxy/)
 This is to be used as cache for properties read on various things. As they are low powered and resource constrained, it is unwise to have them requested constantly when they can be stored in a cache (Redis is used in this case)
 
 ### [Protocol Bindings](binding/)

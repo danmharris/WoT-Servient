@@ -7,8 +7,8 @@ from unittest.mock import patch
 import pytest
 from requests.exceptions import Timeout
 from aiocoap.numbers.codes import GET
-from proxy.app import create_app
-from proxy import proxy
+from wot.proxy.app import create_app
+from wot.proxy import proxy
 from wot.common.db import get_db, close_db
 from wot.common.coap_fixtures import Request, context, message
 

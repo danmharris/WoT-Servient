@@ -1,6 +1,6 @@
 """Entry module for proxy Flask API"""
 from flask import Flask, jsonify
-from proxy import proxy
+from wot.proxy import proxy
 from wot.common.db import close_db
 from wot.common.exception import APIException
 
