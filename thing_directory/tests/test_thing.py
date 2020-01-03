@@ -1,6 +1,6 @@
 """Pytests for thing module"""
 import pytest
-from thing_directory.thing import Thing
+from wot.thing_directory.thing import Thing
 from wot.common.exception import APIException
 
 def test_constructor_given_args():

@@ -1,6 +1,6 @@
 """Entry module to thing directory API"""
 from flask import Flask, jsonify
-from thing_directory import directory
+from wot.thing_directory import directory
 from wot.common.db import close_db
 from wot.common.exception import APIException
 

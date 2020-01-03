@@ -4,7 +4,7 @@
 The aim of this project is to create a network that provides interopability that will work with new devices and legacy IoT devices. The network will follow (as closely as possible) the reccomendation being developed by [W3](https://www.w3.org/WoT/WG/).
 
 ## Services
-### [Thing Directory](src/thing_directory/)
+### [Thing Directory](thing_directory/)
 A resource directory which contains thing descriptions of all the things found on the network that can be interacted with. This integrates with the proxy to rewrote URLs in thing descriptions on registration to go through the proxy.
 
 ### [Proxy](src/proxy/)

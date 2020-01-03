@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, request, jsonify
 import requests
 import aiocoap
 from aiocoap.numbers.codes import GET
-from thing_directory.thing import Thing
+from wot.thing_directory.thing import Thing
 from wot.common.db import get_db
 from wot.common.exception import APIException
 from wot.common.auth import check_auth
