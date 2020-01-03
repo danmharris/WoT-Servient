@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 import jwt
 from flask import Flask
-from common.auth import check_auth, check_auth_exclude, check_auth_include
+from wot.common.auth import check_auth, check_auth_exclude, check_auth_include
 
 @pytest.fixture
 def app():
@@ -66,8 +66,8 @@ def test_valid_jwt(client):
 
 def test_exclude():
     """Tests the auth exclusion logic"""
-    with patch('common.auth.check_auth') as mock_auth:
-        with patch('common.auth.request') as mock_request:
+    with patch('wot.common.auth.check_auth') as mock_auth:
+        with patch('wot.common.auth.request') as mock_request:
             mock_request.endpoint = 'test'
             check_auth_exclude(['test'])()
             mock_auth.assert_not_called()
@@ -78,8 +78,8 @@ def test_exclude():
 
 def test_include():
     """Tests the auth inclusion logic"""
-    with patch('common.auth.check_auth') as mock_auth:
-        with patch('common.auth.request') as mock_request:
+    with patch('wot.common.auth.check_auth') as mock_auth:
+        with patch('wot.common.auth.request') as mock_request:
             mock_request.endpoint = 'test'
             check_auth_include(['test2'])()
             mock_auth.assert_not_called()

@@ -1,7 +1,7 @@
 """Pytests for thing module"""
 import pytest
 from thing_directory.thing import Thing
-from common.exception import APIException
+from wot.common.exception import APIException
 
 def test_constructor_given_args():
     """Tests that the constructor sets fields based on arguments"""

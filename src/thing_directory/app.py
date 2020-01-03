@@ -1,8 +1,8 @@
 """Entry module to thing directory API"""
 from flask import Flask, jsonify
 from thing_directory import directory
-from common.db import close_db
-from common.exception import APIException
+from wot.common.db import close_db
+from wot.common.exception import APIException
 
 def create_app(app_config=None):
     """Creates the API with configuration if provided

@@ -9,8 +9,8 @@ from requests.exceptions import Timeout
 from aiocoap.numbers.codes import GET
 from proxy.app import create_app
 from proxy import proxy
-from common.db import get_db, close_db
-from common.coap_fixtures import Request, context, message
+from wot.common.db import get_db, close_db
+from wot.common.coap_fixtures import Request, context, message
 
 @pytest.fixture
 def app():

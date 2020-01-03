@@ -1,6 +1,6 @@
 """Module for proxy endpoints"""
 from uuid import uuid4
-from common.exception import APIException
+from wot.common.exception import APIException
 
 class Endpoint:
     """Class representing proxy endpoint"""

@@ -7,8 +7,8 @@ import pytest
 import requests
 from aiocoap.numbers.codes import GET
 from thing_directory.app import create_app
-from common.db import get_db, close_db
-from common.coap_fixtures import Request, context, message
+from wot.common.db import get_db, close_db
+from wot.common.coap_fixtures import Request, context, message
 from .data import DATA as data
 
 @pytest.fixture

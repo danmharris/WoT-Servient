@@ -4,7 +4,7 @@ import json
 from flask import Blueprint, jsonify, request, current_app
 import aiocoap
 from aiocoap.numbers.codes import PUT, GET
-from common.td_util import ThingDescriptionBuilder, ObjectBuilder
+from wot.common.td_util import ThingDescriptionBuilder, ObjectBuilder
 from binding.producer import Producer
 
 # API Information was read from https://github.com/glenndehaan/ikea-tradfri-coap-docs

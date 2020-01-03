@@ -7,9 +7,9 @@ import requests
 import aiocoap
 from aiocoap.numbers.codes import GET
 from thing_directory.thing import Thing
-from common.db import get_db
-from common.exception import APIException
-from common.auth import check_auth
+from wot.common.db import get_db
+from wot.common.exception import APIException
+from wot.common.auth import check_auth
 
 bp = Blueprint('directory', __name__, url_prefix='/things')
 bp.before_request(check_auth)

@@ -1,6 +1,6 @@
 """Module for Thing representation"""
 from uuid import uuid4
-from common.exception import APIException
+from wot.common.exception import APIException
 
 class Thing:
     """Class that represents a Thing in the directory"""

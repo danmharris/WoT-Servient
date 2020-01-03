@@ -1,8 +1,8 @@
 """Entry module for proxy Flask API"""
 from flask import Flask, jsonify
 from proxy import proxy
-from common.db import close_db
-from common.exception import APIException
+from wot.common.db import close_db
+from wot.common.exception import APIException
 
 def create_app(app_config=None):
     """Constructs the API with configuration if provided

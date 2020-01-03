@@ -5,10 +5,10 @@ import requests
 import aiocoap
 from aiocoap.numbers.codes import GET
 from proxy.endpoint import Endpoint
-from common.db import get_db
-from common.redis import get_redis
-from common.exception import APIException
-from common.auth import check_auth_exclude
+from wot.common.db import get_db
+from wot.common.redis import get_redis
+from wot.common.exception import APIException
+from wot.common.auth import check_auth_exclude
 
 bp = Blueprint('proxy', __name__, url_prefix='/proxy')
 bp.before_request(check_auth_exclude(['proxy.req']))

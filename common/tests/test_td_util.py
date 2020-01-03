@@ -1,6 +1,6 @@
 """Pytests for thing description utility module"""
-from common.td_util import _add_form, ThingDescriptionBuilder
-from common.td_util import StringBuilder, NumberBuilder, ObjectBuilder
+from wot.common.td_util import _add_form, ThingDescriptionBuilder
+from wot.common.td_util import StringBuilder, NumberBuilder, ObjectBuilder
 
 def test_add_form_empty():
     """Tests that default arguments are used in _add_form"""

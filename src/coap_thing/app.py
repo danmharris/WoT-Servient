@@ -3,7 +3,7 @@ import asyncio
 import json
 import aiocoap
 import aiocoap.resource as resource
-from common.td_util import ThingDescriptionBuilder, ObjectBuilder
+from wot.common.td_util import ThingDescriptionBuilder, ObjectBuilder
 
 def td_builder():
     """Builds a thing description for this device"""
