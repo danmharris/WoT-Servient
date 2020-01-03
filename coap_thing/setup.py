@@ -13,4 +13,9 @@ setup(
     dependency_links=[
         "git+git://github.com/chrysn/aiocoap.git#egg=aiocoap",
     ],
+    entry_points={
+        'console_scripts': [
+            'wot-coap-thing = wot.coap_thing.app:main',
+        ]
+    },
 )
