@@ -1,12 +1,6 @@
 """Entry scripts for all APIs in this project"""
 import configparser
 import sys
-import json
-import asyncio
-import jwt
-import click
-from aiocoap import Context, Message
-from aiocoap.numbers.codes import POST
 from proxy.app import create_app as create_proxy_app
 from thing_directory.app import create_app as create_td_app
 from binding.app import create_app as create_binding_app
@@ -64,51 +58,6 @@ def start_thing_directory():
         'SECRET': config['thing_directory']['secret'],
     })
     app.run(host='0.0.0.0', port=5002)
-
-
-@click.group()
-@click.option('--config', default='/etc/wot-network.ini', help='Path to config file')
-@click.pass_context
-def cli(ctx, config):
-    """Main CLI utility"""
-    ctx.ensure_object(dict)
-    ctx.obj['CONFIG'] = config
-
-@cli.command()
-@click.argument('description')
-@click.pass_context
-def generate_api_token(ctx, description):
-    """Generates a JWT for accessing services"""
-    config = read_config(ctx.obj['CONFIG'])
-    secret = config['DEFAULT']['secret']
-    click.echo(jwt.encode({'description': description}, secret, algorithm='HS256').decode())
-
-@cli.command()
-@click.argument('psk')
-@click.argument('identity')
-@click.pass_context
-def generate_ikea_psk(ctx, psk, identity):
-    """Generates credentials to communicate with IKEA devices"""
-    config = read_config(ctx.obj['CONFIG'])
-    address = config['IKEA']['gateway']
-    res = asyncio.get_event_loop().run_until_complete(_generate_psk(address, psk, identity))
-    click.echo(res)
-
-async def _generate_psk(address, psk, identity):
-    c = await Context.create_client_context()
-    uri = 'coaps://{}:5684/'.format(address)
-    c.client_credentials.load_from_dict({
-        uri+'*': {
-            'dtls': {
-                'psk': psk.encode(),
-                'client-identity': b'Client_identity',
-            }
-        }
-    })
-    payload = '{{"9090":"{}"}}'.format(identity).encode()
-    request = Message(code=POST, payload=payload, uri='coaps://{}:5684/15011/9063'.format(address))
-    response = await c.request(request).response
-    return json.loads(response.payload)['9091']
 
 def start_coap_thing():
     """Starts the example CoAP device"""
