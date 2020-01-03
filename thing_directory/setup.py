@@ -8,7 +8,6 @@ setup(
     install_requires=[
         'Flask>=1.1.1',
         'requests>=2.21.0',
-        'Click==7.0',
         'aiocoap[all]==0.4b1',
         ],
     author="Dan Harris",
