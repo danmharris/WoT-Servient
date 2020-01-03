@@ -12,8 +12,8 @@ def create_app(app_config=None):
     """
     app = Flask(__name__)
     if app_config is None:
-        app.config['DB'] = 'things.db'
-        app.config['PROXY'] = 'http://localhost:5001'
+        app.config.from_object('wot.thing_directory.config')
+        app.config.from_envvar('WOT_THING_DIRECTORY_CONFIG', silent=True)
     else:
         app.config.from_mapping(app_config)
     app.register_blueprint(directory.bp)

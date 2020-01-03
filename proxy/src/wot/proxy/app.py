@@ -12,8 +12,8 @@ def create_app(app_config=None):
     """
     app = Flask(__name__)
     if app_config is None:
-        app.config['DB'] = 'endpoints.db'
-        app.config['REDIS'] = 'localhost'
+        app.config.from_object('wot.proxy.config')
+        app.config.from_envvar('WOT_PROXY_CONFIG', silent=True)
     else:
         app.config.from_mapping(app_config)
     app.register_blueprint(proxy.bp)

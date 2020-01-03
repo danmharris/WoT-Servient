@@ -10,13 +10,8 @@ def create_app(app_config=None):
     """
     app = Flask(__name__)
     if app_config is None:
-        app.config['BINDINGS'] = ['tplink', 'ikea']
-        app.config['HOSTNAME'] = 'http://localhost:5000'
-        app.config['IKEA'] = {
-            'gateway': '192.168.3.100',
-            'psk': 'ZSI7flwhfzpe0UOf',
-            'identity': 'test',
-        }
+        app.config.from_object('wot.binding.config')
+        app.config.from_envvar('WOT_BINDING_CONFIG', silent=True)
     else:
         app.config.from_mapping(app_config)
 
