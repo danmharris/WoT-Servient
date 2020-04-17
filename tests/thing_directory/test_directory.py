@@ -9,7 +9,7 @@ from aiocoap.numbers.codes import GET
 from wot.thing_directory.app import create_app
 from wot.common.db import get_db, close_db
 from wot.common.coap_fixtures import Request, context, message
-from data import DATA as data
+from .data import DATA as data
 
 @pytest.fixture
 def app():

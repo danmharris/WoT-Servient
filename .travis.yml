@@ -2,9 +2,6 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install common/
-  - pip install binding/
-  - pip install proxy/
-  - pip install thing_directory/
+  - pip install .
 script:
   - pytest
