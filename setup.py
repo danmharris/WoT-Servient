@@ -11,7 +11,7 @@ setup(
         'aiocoap[all]==0.4b1',
         'Click==7.0',
         'requests>=2.21.0',
-        'pyHS100>=0.3.4',
+        'pyHS100>=0.3.5',
         ],
     author="Dan Harris",
     description="Common libraries to be used by microservices in the WoT Servient",
