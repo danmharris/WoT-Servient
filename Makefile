@@ -1,6 +1,6 @@
 pip_location = /opt/wot/bin/pip3
 
-systemd_units = wot-binding.service wot-thing-directory.service wot-proxy.service
+systemd_units = wot-binding.service wot-thing-directory.service wot-proxy.service wot-adapter.service
 systemd_units_dest = $(addprefix /lib/systemd/system/, $(systemd_units))
 
 config_services = thing_directory proxy binding

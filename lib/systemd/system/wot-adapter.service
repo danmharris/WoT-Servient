@@ -1,0 +1,12 @@
+[Unit]
+Description=Adapters for legacy devices to be WoT compatible
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/wot/bin/gunicorn 'wot.adapter.app:create_app()'
+Restart=on-failure
+User=wot
+
+[Install]
+WantedBy=multi-user.target
