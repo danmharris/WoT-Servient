@@ -1,27 +1,21 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="WoT Network",
-    version="0.1",
-    package_dir={'':'src'},
-    packages=find_packages('src', exclude=['*.tests']),
+    name="wot-servient",
+    version="0.0.1",
+    packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'Flask>=1.0.2',
-        'requests>=2.21.0',
+        'Flask>=1.1.1',
         'redis>=3.1.0',
-        'pyHS100>=0.3.4',
         'PyJWT==1.7.1',
+        'aiocoap[all]==0.4b1',
         'Click==7.0',
+        'requests>=2.21.0',
+        'pyHS100>=0.3.4',
         ],
     author="Dan Harris",
-    description="Set of services used to build a network based on W3 specification",
-    entry_points={
-        'console_scripts': [
-            'wot-td = scripts.main:start_thing_directory',
-            'wot-proxy = scripts.main:start_proxy',
-            'wot-binding = scripts.main:start_binding',
-            'wot-cli = scripts.main:cli',
-            'wot-coap-thing = scripts.main:start_coap_thing',
-        ]
-    }
+    description="Common libraries to be used by microservices in the WoT Servient",
+    dependency_links=[
+        "git+git://github.com/chrysn/aiocoap.git#egg=aiocoap",
+    ],
 )

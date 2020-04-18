@@ -1,0 +1,13 @@
+[Unit]
+Description=WoT Thing Directory
+
+[Service]
+Type=simple
+WorkingDirectory=/var/opt/wot/lib/
+Environment=WOT_THING_DIRECTORY_CONFIG=/etc/opt/wot/thing_directory.cfg
+ExecStart=/opt/wot/bin/gunicorn 'wot.thing_directory.app:create_app()'
+Restart=on-failure
+User=wot
+
+[Install]
+WantedBy=multi-user.target
