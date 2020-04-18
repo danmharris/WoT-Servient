@@ -4,7 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/opt/wot-network/bin/wot-binding
+ExecStart=/opt/wot/bin/gunicorn 'wot.binding.app:create_app()'
+Restart=on-failure
+User=wot
 
 [Install]
 WantedBy=multi-user.target

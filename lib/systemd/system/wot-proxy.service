@@ -3,8 +3,10 @@ Description=WoT network proxy to cache property readings
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/wot-network
-ExecStart=/opt/wot-network/bin/wot-proxy
+WorkingDirectory=/var/opt/wot/lib/
+ExecStart=/opt/wot/bin/gunicorn 'wot.proxy.app:create_app()'
+Restart=on-failure
+User=wot
 
 [Install]
 WantedBy=multi-user.target

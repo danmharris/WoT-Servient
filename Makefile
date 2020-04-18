@@ -1,5 +1,8 @@
 pip_location = /opt/wot/bin/pip3
 
+systemd_units = wot-binding.service wot-thing-directory.service wot-proxy.service
+systemd_units_dest = $(addprefix /lib/systemd/system/, $(systemd_units))
+
 install-deps:
 	apt-get update
 	apt-get install -y python3 python3-venv python3-dev build-essential autoconf
@@ -10,7 +13,7 @@ install-python: $(pip_location)
 	$< install wheel gunicorn Cython
 	$< install .
 
-install-files: /var/opt/wot/lib/ $(config_dest_files)
+install-files: /var/opt/wot/lib/ install-services
 
 $(pip_location):
 	python3 -m venv /opt/wot/
@@ -20,10 +23,16 @@ $(pip_location):
 	getend group wot >/dev/null 2>&1 || groupadd wot
 	getent passwd wot >/dev/null 2>&1 || useradd -d /var/opt/wot/lib/ -m -g wot wot
 
+install-services: $(systemd_units_dest)
+	systemctl daemon-reload 2>/dev/null || true
+
+$(systemd_units_dest): /lib/systemd/system/%.service: lib/systemd/system/%.service
+	install -m 0644 $< $@
+
 uninstall:
 	rm -rf /var/opt/wot/
 	rm -rf /opt/wot/
 	userdel -rf wot
 	groupdel wot
 
-.PHONY = install-deps install uninstall
+.PHONY = install-deps install uninstall install-files install-services
