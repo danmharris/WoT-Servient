@@ -27,7 +27,7 @@ $(pip_location):
 
 install-user:
 	install -dm 0755 /var/opt/wot/
-	getend group wot >/dev/null 2>&1 || groupadd wot
+	getent group wot >/dev/null 2>&1 || groupadd wot
 	getent passwd wot >/dev/null 2>&1 || useradd -d /var/opt/wot/lib/ -m -g wot wot
 
 install-services: $(systemd_units_dest)
@@ -36,7 +36,7 @@ install-services: $(systemd_units_dest)
 $(systemd_units_dest): /lib/systemd/system/%.service: lib/systemd/system/%.service
 	install -m 0644 $< $@
 
-install-config: $(config_files_dest)
+install-config: $(config_files_dest) $(yaml_config_dest)
 
 /etc/opt/wot/:
 	install -dm 0755 $@

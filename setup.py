@@ -12,6 +12,7 @@ setup(
         'Click==7.0',
         'requests>=2.21.0',
         'pyHS100>=0.3.5',
+        'PyYAML>=5.3.1',
         ],
     author="Dan Harris",
     description="Common libraries to be used by microservices in the WoT Servient",
