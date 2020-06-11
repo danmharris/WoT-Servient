@@ -1,9 +1,9 @@
 pip_location = /opt/wot/venv/bin/pip3
 
-systemd_units = wot-binding.service wot-thing-directory.service wot-proxy.service wot-adapter.service
+systemd_units = wot-thing-directory.service wot-proxy.service wot-adapter.service
 systemd_units_dest = $(addprefix /lib/systemd/system/, $(systemd_units))
 
-config_services = thing_directory proxy binding
+config_services = thing_directory proxy
 config_files_dest = $(addprefix /etc/opt/wot/, $(addsuffix .cfg, $(config_services)))
 
 yaml_config = adapter.yaml
