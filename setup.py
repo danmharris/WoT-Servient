@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 setup(
     name="wot-servient",
     version="0.0.1",
-    packages=find_packages(exclude=['*.tests']),
+    packages=find_namespace_packages(include=['wot.*']),
     install_requires=[
         'Flask>=1.1.1',
         'redis>=3.1.0',
