@@ -1,0 +1,8 @@
+##########################
+### WoT Adapter Config ###
+##########################
+---
+# Specify the adapters to enable. Currently supported:
+# - tplink
+#
+# ENABLED: []

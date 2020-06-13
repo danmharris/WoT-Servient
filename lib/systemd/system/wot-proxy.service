@@ -5,7 +5,7 @@ Description=WoT network proxy to cache property readings
 Type=simple
 WorkingDirectory=/var/opt/wot/lib/
 Environment=WOT_PROXY_CONFIG=/etc/opt/wot/proxy.cfg
-ExecStart=/opt/wot/bin/gunicorn 'wot.proxy.app:create_app()'
+ExecStart=/opt/wot/venv/bin/gunicorn 'wot.proxy.app:create_app()'
 Restart=on-failure
 User=wot
 

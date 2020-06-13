@@ -10,9 +10,6 @@ A resource directory which contains thing descriptions of all the things found o
 ### [Proxy](proxy/)
 This is to be used as cache for properties read on various things. As they are low powered and resource constrained, it is unwise to have them requested constantly when they can be stored in a cache (Redis is used in this case)
 
-### [Protocol Bindings](binding/)
-These wrap legacy IoT devices in a HTTP API that can be controlled by a WoT application. As well as this they produce a thing description for a given thing so that it can be discovered and its interactions used.
-
 ### [Other Common Modules](src/common/)
 Modules which can be used across all of these services, such as wrappers for Shelve databases or utilities for generating thing descriptions
 
@@ -24,5 +21,4 @@ They can be installed by running `sudo make install-deps install`, which will in
 Running this script provides the following systemd units:
 * `wot-td.service`
 * `wot-proxy.service`
-* `wot-binding.service`
 * `wot-coap-thing.service`
