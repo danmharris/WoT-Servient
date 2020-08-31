@@ -3,14 +3,10 @@ from setuptools import setup, find_namespace_packages
 setup(
     name="wot-servient",
     version="0.0.1",
-    packages=find_namespace_packages(include=['wot.*']),
+    package_dir={"":"src"},
+    packages=find_namespace_packages(where="src"),
     install_requires=[
         'Flask>=1.1.1',
-        'redis>=3.1.0',
-        'PyJWT==1.7.1',
-        'aiocoap[all]==0.4b1',
-        'Click==7.0',
-        'requests>=2.21.0',
         'pyHS100>=0.3.5',
         'PyYAML>=5.3.1',
         ],
