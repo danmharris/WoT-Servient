@@ -4,16 +4,11 @@ from wot.grouper.services import ThingService
 
 bp = Blueprint('grouper', __name__)
 
-# TODO: Improve exception handling (specific exception types and status codes)
-
 @bp.route('/', methods=['GET'])
 def get_things():
     """ returns all things known to the system """
     things = None
-    try:
-        things = ThingService(get_db()).get_things()
-    except:
-        return (jsonify({'message': 'An error occured'}), 500, None)
+    things = ThingService(get_db()).get_things()
 
     return jsonify(things)
 
@@ -27,8 +22,8 @@ def new_thing():
     """
     try:
         ThingService(get_db()).new_thing(request.get_json())
-    except:
-        return (jsonify({'message': 'An error occured'}), 500, None)
+    except (ValueError, IndexError) as e:
+        return (jsonify({'message': str(e)}), 400, None)
 
     return (jsonify({'status': 'created'}), 201, None)
 
@@ -40,8 +35,8 @@ def get_thing(name):
     thing = None
     try:
         thing = ThingService(get_db()).get_thing(name)
-    except:
-        return (jsonify({'message': 'An error occured'}), 500, None)
+    except IndexError as e:
+        return (jsonify({'message': str(e)}), 404, None)
 
     return jsonify(thing)
 
