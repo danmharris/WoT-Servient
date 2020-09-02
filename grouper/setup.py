@@ -8,6 +8,7 @@ setup(
     install_requires=[
         'Flask>=1.1.2',
         'tinydb>=4.1.1',
+        'requests>=2.24.0',
         ],
     author="Dan Harris",
     description="API to consume one/more things and expose them as a single item",

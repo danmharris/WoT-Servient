@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request
 from wot.grouper.db import get_db
 from wot.grouper.services import ThingService
+
+from flask import Blueprint, jsonify, request
 
 bp = Blueprint('grouper', __name__)
 
@@ -45,13 +46,23 @@ def invoke_action(name, action):
     """
     Invokes the action by performing all steps in exec
     """
-    # TODO: Implement
-    pass
+    try:
+        ThingService(get_db()).invoke_action(name, action)
+    except IndexError as e:
+        return (jsonify({'message': str(e)}), 400, None)
+    except RuntimeError as e:
+        return (jsonify({'message': str(e)}), 500, None)
+
+    return jsonify({'message': 'Action executed successfully'})
 
 @bp.route('/<name>', methods=['DELETE'])
 def delete_thing(name):
     """
     Deletes a thing
     """
-    # TODO: Implement
-    pass
+    try:
+        ThingService(get_db()).delete_thing(name)
+    except IndexError as e:
+        return (jsonify({'message': str(e)}), 404, None)
+
+    return (jsonify({'message': 'Deleted'}), 410, None)
