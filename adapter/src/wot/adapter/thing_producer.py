@@ -1,10 +1,11 @@
+from wot.adapter.config import Config
 from flask import Blueprint, jsonify
 
 class ThingProducer:
     def __init__(self, schema):
         self.schema = schema
         self.properties = dict()
-        base = self.schema['base']
+        base = Config.get('base') + '/things/' + self.schema['id']
 
         bp = Blueprint(schema['id'], __name__, url_prefix=base)
         self.blueprint = bp

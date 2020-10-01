@@ -17,7 +17,6 @@ def _produce_tplink(plug):
     device_schema = dict(HS100)
     device_schema['id'] = mac
     device_schema['title'] = plug.alias
-    device_schema['base'] = '/things/' + mac
 
     producer = ThingProducer(device_schema)
 
