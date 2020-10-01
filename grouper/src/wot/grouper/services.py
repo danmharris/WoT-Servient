@@ -1,3 +1,4 @@
+from wot.grouper.config import Config
 from logging import getLogger
 
 import requests
@@ -19,7 +20,7 @@ class ThingService:
 
         if 'id' not in td:
             td['id'] = "urn:wot:virtual:{}".format(td['title'])
-        td['base'] = '/things/{}'.format(td['title'])
+        td['base'] = Config.get('base') + '/things/{}'.format(td['title'])
 
         for action in td['actions'].keys():
             td['actions'][action]['forms'] = [{
