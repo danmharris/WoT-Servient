@@ -1,0 +1,30 @@
+---
+version: '3'
+
+services:
+    traefik:
+        image: traefik:v2.0
+        command:
+            - "--api.insecure=true"
+            - "--entrypoints.web.address=:80"
+            - "--providers.docker"
+            - "--providers.docker.exposedbydefault=false"
+        ports:
+            - "80:80"
+            - "8080:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+    adapter:
+        build: ./adapter
+        network_mode: host
+        env_file: ./adapter.env
+    grouper:
+        build: ./grouper
+        env_file: ./grouper.env
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.middlewares.grouper.stripprefix.prefixes=/grouper"
+            - "traefik.http.routers.grouper.rule=PathPrefix(`/grouper/`)"
+            - "traefik.http.routers.grouper.entrypoints=web"
+            - "traefik.http.routers.grouper.middlewares=grouper"
+
