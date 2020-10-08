@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 
 bp = Blueprint('grouper', __name__)
 
-@bp.route('/', methods=['GET'])
+@bp.route('/things/', methods=['GET'])
 def get_things():
     """ returns all things known to the system """
     things = None
@@ -13,7 +13,7 @@ def get_things():
 
     return jsonify(things)
 
-@bp.route('/', methods=['POST'])
+@bp.route('/things/', methods=['POST'])
 def new_thing():
     """
     Creates a new virtual thing. This takes a thing description as parameters,
@@ -28,7 +28,7 @@ def new_thing():
 
     return (jsonify({'status': 'created'}), 201, None)
 
-@bp.route('/<name>', methods=['GET'])
+@bp.route('/things/<name>', methods=['GET'])
 def get_thing(name):
     """
     Retrieves a description for a single thing
@@ -41,7 +41,7 @@ def get_thing(name):
 
     return jsonify(thing)
 
-@bp.route('/<name>/<action>', methods=['POST'])
+@bp.route('/things/<name>/<action>', methods=['POST'])
 def invoke_action(name, action):
     """
     Invokes the action by performing all steps in exec
@@ -55,7 +55,7 @@ def invoke_action(name, action):
 
     return jsonify({'message': 'Action executed successfully'})
 
-@bp.route('/<name>', methods=['DELETE'])
+@bp.route('/things/<name>', methods=['DELETE'])
 def delete_thing(name):
     """
     Deletes a thing

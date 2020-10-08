@@ -23,10 +23,8 @@ services:
         env_file: ./grouper.env
         labels:
             - "traefik.enable=true"
-            - "traefik.http.middlewares.grouper.stripprefix.prefixes=/grouper"
-            - "traefik.http.routers.grouper.rule=PathPrefix(`/grouper/`)"
+            - "traefik.http.routers.grouper.rule=PathPrefix(`/api/v1/grouper/`)"
             - "traefik.http.routers.grouper.entrypoints=web"
-            - "traefik.http.routers.grouper.middlewares=grouper"
     directory:
         build: ./directory
         labels:

@@ -8,7 +8,7 @@ def create_app():
     Config.load()
 
     app = Flask(__name__)
-    app.register_blueprint(bp, url_prefix='/things')
+    app.register_blueprint(bp, url_prefix='/api/v1/grouper')
     app.teardown_appcontext(close_db)
 
     return app
