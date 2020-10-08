@@ -27,4 +27,10 @@ services:
             - "traefik.http.routers.grouper.rule=PathPrefix(`/grouper/`)"
             - "traefik.http.routers.grouper.entrypoints=web"
             - "traefik.http.routers.grouper.middlewares=grouper"
+    directory:
+        build: ./directory
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.directory.rule=PathPrefix(`/api/v1/directory/`)"
+            - "traefik.http.routers.directory.entrypoints=web"
 
