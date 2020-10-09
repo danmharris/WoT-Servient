@@ -6,4 +6,5 @@ RUN mkdir -p /data
 
 ENV DB_PATH /data/grouper.json
 EXPOSE 8000
+VOLUME /data
 ENTRYPOINT ["gunicorn", "-b 0.0.0.0:8000", "wot.grouper.app:create_app()"]

@@ -4,6 +4,7 @@ version: '3'
 services:
     traefik:
         image: traefik:v2.0
+        restart: always
         command:
             - "--api.insecure=true"
             - "--entrypoints.web.address=:80"
@@ -18,15 +19,18 @@ services:
         build: ./adapter
         network_mode: host
         env_file: ./adapter.env
+        restart: always
     grouper:
         build: ./grouper
         env_file: ./grouper.env
+        restart: always
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.grouper.rule=PathPrefix(`/api/v1/grouper/`)"
             - "traefik.http.routers.grouper.entrypoints=web"
     directory:
         build: ./directory
+        restart: always
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.directory.rule=PathPrefix(`/api/v1/directory/`)"
