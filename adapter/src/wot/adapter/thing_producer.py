@@ -5,7 +5,9 @@ class ThingProducer:
     def __init__(self, schema):
         self.schema = schema
         self.properties = dict()
-        base = Config.get('base') + '/things/' + self.schema['id']
+
+        base = '/things/' + self.schema['id']
+        self.schema['base'] = Config.get('base') + base
 
         bp = Blueprint(schema['id'], __name__, url_prefix=base)
         self.blueprint = bp
