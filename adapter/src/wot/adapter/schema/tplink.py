@@ -6,10 +6,7 @@ HS100 = {
             'title': 'State',
             'description': 'Whether the plug is on',
             'readOnly': False,
-            'type': 'object',
-            'properties': {
-                'state': {'type': 'boolean'},
-            },
+            'type': 'boolean',
             'forms': [
                 {
                     'op': 'readproperty',

@@ -23,12 +23,12 @@ def _produce_tplink(plug):
     def read_state():
         print(device_schema['id'])
         state = True if plug.state == 'ON' else False
-        return jsonify({'state': state})
+        return jsonify(state)
 
     def write_state():
-        new_state = request.get_json()['state']
+        new_state = request.get_json()
         plug.state = 'ON' if new_state == True else 'OFF'
-        return jsonify({'state': new_state})
+        return jsonify(new_state)
 
     def toggle_state():
         plug.state = 'ON' if plug.state == 'OFF' else 'OFF'
