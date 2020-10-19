@@ -11,6 +11,16 @@ def get_things():
     """ returns all things known to the system """
     return jsonify(DirectoryService(get_db()).get_things())
 
+@bp.route('/things/<thing_id>', methods=['GET'])
+def get_thing(thing_id):
+    thing = None
+    try:
+        thing = DirectoryService(get_db()).get_thing(thing_id)
+    except IndexError as e:
+        return (jsonify({'status': 'error', 'message': str(e)}), 404, None)
+
+    return jsonify(thing)
+
 @bp.route('/sources/', methods=['POST'])
 def new_sources():
     """
@@ -31,6 +41,12 @@ def new_sources():
             }), 201, None)
 
     return (jsonify({'status': 'success'}), 201, None)
+
+@bp.route('/sources/<source_id>', methods=['DELETE'])
+def delete_source(source_id):
+    DirectoryService(get_db()).delete_source(source_id)
+
+    return (jsonify({'status': 'deleted'}), 204, None)
 
 @bp.route('/sources/', methods=['GET'])
 def get_sources():

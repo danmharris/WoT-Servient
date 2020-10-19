@@ -10,6 +10,9 @@ class DirectoryService:
         self.db = db
         self.logger = getLogger(__name__)
     def new_source(self, uri):
+        sources = self.db.table('sources')
+        things = self.db.table('things')
+
         r = requests.get(uri)
         r.raise_for_status()
         sig = sha256(r.content).hexdigest()
@@ -17,13 +20,26 @@ class DirectoryService:
         source = {
             'uri': uri,
             'sig': sig,
-            'data': r.json(),
         }
 
-        return self.db.insert(source)
+        source_id = sources.insert(source)
+
+        for thing in r.json():
+            thing['source_id'] = source_id
+            things.insert(thing)
+
+        return source_id
+    def delete_source(self, source_id):
+        sources = self.db.table('sources')
+        things = self.db.table('things')
+        source_id = int(source_id)
+
+        Thing = Query()
+        things.remove(Thing.source_id == source_id)
+        sources.remove(doc_ids=[source_id])
     def get_sources(self):
         sources = list()
-        for source in self.db.all():
+        for source in self.db.table('sources').all():
             sources.append({
                 'id': source.doc_id,
                 'uri': source['uri'],
@@ -31,13 +47,22 @@ class DirectoryService:
             })
         return sources
     def get_things(self):
-        things = list()
-        for source in self.db.all():
-            things = things + source['data']
-        return things
+        return self.db.table('things').all()
+    def get_thing(self, thing_id):
+        Thing = Query()
+
+        thing = self.db.table('things').get(Thing.id == thing_id)
+
+        if thing is None:
+            raise IndexError('Thing not found')
+
+        return thing
     def sync(self):
+        sources = self.db.table('sources')
+        things = self.db.table('things')
+
         updated = 0
-        for source in self.db.all():
+        for source in sources.all():
             r = requests.get(source['uri'])
             try:
                 r.raise_for_status()
@@ -46,10 +71,10 @@ class DirectoryService:
             sig = sha256(r.content).hexdigest()
 
             if sig != source['sig']:
-                self.db.update({
-                    'sig': sig,
-                    'data': r.json()
-                    }, doc_ids=[source.doc_id])
+                Thing = Query()
+                things.remove(Thing.source_id == source.doc_id)
+                for thing in r.json():
+                    thing['source_id'] = source.doc_id
+                    things.insert(thing)
                 updated = updated + 1
         return updated
-
