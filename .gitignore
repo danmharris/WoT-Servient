@@ -18,3 +18,5 @@ build/
 dist/
 
 *.env
+.env.local
+!client/.env

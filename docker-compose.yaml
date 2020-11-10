@@ -35,4 +35,10 @@ services:
             - "traefik.enable=true"
             - "traefik.http.routers.directory.rule=PathPrefix(`/api/v1/directory/`)"
             - "traefik.http.routers.directory.entrypoints=web"
-
+    client:
+        build: ./client
+        restart: always
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.client.rule=PathPrefix(`/`)"
+            - "traefik.http.routers.client.entrypoints=web"
