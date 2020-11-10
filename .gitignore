@@ -17,6 +17,4 @@ htmlcov/
 build/
 dist/
 
-*.env
-.env.local
-!client/.env
+*.env.local
