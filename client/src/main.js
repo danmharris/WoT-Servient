@@ -10,10 +10,11 @@ import { MdButton,
          MdTable,
        } from 'vue-material/dist/components'
 import 'vue-material/dist/vue-material.min.css'
-import 'vue-material/dist/theme/default.css'
+import 'vue-material/dist/theme/default-dark.css'
 
 import App from './App.vue'
 import ThingList from './components/ThingList.vue'
+import Thing from './components/Thing.vue'
 
 Vue.config.productionTip = false
 
@@ -30,6 +31,7 @@ Vue.use(MdTable)
 
 const routes = [
   { path: '/', component: ThingList },
+  { path: '/things/:id', component: Thing },
 ]
 
 const router = new VueRouter({

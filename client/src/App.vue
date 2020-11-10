@@ -14,7 +14,7 @@
           </md-toolbar>
           <md-list>
             <md-list-item>
-              <router-link to="/things">Things</router-link>
+              <router-link to="/">Things</router-link>
             </md-list-item>
           </md-list>
         </md-app-drawer>
