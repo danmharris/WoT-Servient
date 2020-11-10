@@ -7,6 +7,7 @@ setup(
     packages=find_namespace_packages(where="src"),
     install_requires=[
         'Flask>=1.1.1',
+        'Flask-Cors>=3.0.9',
         'pyHS100>=0.3.5',
         'PyYAML>=5.3.1',
         ],
