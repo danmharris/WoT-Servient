@@ -16,7 +16,7 @@ class Config:
 
         # Environment variable overrides
         if 'DB_PATH' in os.environ:
-            cls.__custom['db'] = os.environ['DB_PATH']
+            cls.__custom['db'] = os.environ['DB_PATH'] + '/directory.json'
 
     @classmethod
     def get(cls, key):

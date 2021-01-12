@@ -17,9 +17,9 @@ class Config:
 
         # Environment variable overrides
         if 'DB_PATH' in os.environ:
-            cls.__custom['db'] = os.environ['DB_PATH']
+            cls.__custom['db'] = os.environ['DB_PATH'] + '/grouper.json'
         if 'BASE_URI' in os.environ:
-            cls.__custom['base'] = os.environ['BASE_URI']
+            cls.__custom['base'] = os.environ['BASE_URI'] + '/api/v1/grouper'
 
     @classmethod
     def get(cls, key):

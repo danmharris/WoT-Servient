@@ -17,9 +17,9 @@ class Config:
 
         # Environment variable overrides
         if 'PLUGINS' in os.environ:
-            cls.__custom['plugins'] = os.environ['PLUGINS'].split(',')
+            cls.__custom['plugins'] = os.environ['ADAPTER_PLUGINS'].split(',')
         if 'BASE_URI' in os.environ:
-            cls.__custom['base'] = os.environ['BASE_URI']
+            cls.__custom['base'] = os.environ['ADAPTER_BASE_URI']
 
     @classmethod
     def get(cls, key):

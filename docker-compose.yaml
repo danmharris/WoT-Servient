@@ -18,11 +18,11 @@ services:
     adapter:
         build: ./adapter
         network_mode: host
-        env_file: ./.adapter.env.local
+        env_file: ./.env.local
         restart: always
     grouper:
         build: ./grouper
-        env_file: ./.grouper.env.local
+        env_file: ./.env.local
         restart: always
         labels:
             - "traefik.enable=true"
