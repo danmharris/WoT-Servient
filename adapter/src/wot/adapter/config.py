@@ -16,9 +16,9 @@ class Config:
                 cls.__custom = safe_load(stream)
 
         # Environment variable overrides
-        if 'PLUGINS' in os.environ:
+        if 'ADAPTER_PLUGINS' in os.environ:
             cls.__custom['plugins'] = os.environ['ADAPTER_PLUGINS'].split(',')
-        if 'BASE_URI' in os.environ:
+        if 'ADAPTER_BASE_URI' in os.environ:
             cls.__custom['base'] = os.environ['ADAPTER_BASE_URI']
 
     @classmethod
