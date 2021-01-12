@@ -1,5 +1,9 @@
 # WoT Servient
 
+**Disclaimer:** This is a personal project I work on in my spare time and isn't
+intended to be a fully functional solution. If that's what you're after check
+out [HomeAssistant](https://www.home-assistant.io/).
+
 The aim of this project is to create a network that provides interoperability
 that will work with new devices and legacy IoT devices. The network will follow
 (as closely as possible) the recommendation being developed by
