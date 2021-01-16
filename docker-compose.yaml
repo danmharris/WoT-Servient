@@ -42,3 +42,7 @@ services:
             - "traefik.enable=true"
             - "traefik.http.routers.client.rule=PathPrefix(`/`)"
             - "traefik.http.routers.client.entrypoints=web"
+    mqtt:
+        image: eclipse-mosquitto
+        ports:
+            - "1883:1883"
