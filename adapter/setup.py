@@ -10,6 +10,8 @@ setup(
         'Flask-Cors>=3.0.9',
         'pyHS100>=0.3.5',
         'PyYAML>=5.3.1',
+        'requests>=2.25.1',
+        'paho-mqtt>=1.5.1',
         ],
     author="Dan Harris",
     description="Common libraries to be used by microservices in the WoT Servient",
