@@ -40,27 +40,30 @@ class TasmotaDiscovery:
     def new_thing(self, status):
         mac = status['Mac'].replace(':', '').lower()
         ip = status['IPAddress']
+        base_uri = 'http://'+ip+'/cm?cmnd='
+
+        name = requests.get(base_uri+'FriendlyName1').json()['FriendlyName1']
 
         device_schema = dict(PLUG)
         device_schema['id'] = mac
-        device_schema['title'] = status['Hostname']
+        device_schema['title'] = name
 
         producer = ThingProducer(device_schema)
 
         def read_state():
-            r = requests.get('http://'+ip+'/cm?cmnd=Power')
+            r = requests.get(base_uri+'Power')
             state = True if r.json()['POWER'] == 'ON' else False
             return jsonify(state)
 
         def write_state():
             new_state = request.get_json()
             arg = 'ON' if new_state == True else 'OFF'
-            requests.get('http://'+ip+'/cm?cmnd=Power%20'+arg)
+            requests.get(base_uri+'Power%20'+arg)
 
             return jsonify(new_state)
 
         def toggle_state():
-            requests.get('http://'+ip+'/cm?cmnd=Power%20Toggle')
+            requests.get(base_uri+'Power%20Toggle')
             return ''
 
         producer.setPropertyReadHandler('state', read_state)
