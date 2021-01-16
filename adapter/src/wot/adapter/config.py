@@ -5,6 +5,7 @@ class Config:
     __default = {
         'plugins': [],
         'base': 'http://' + socket.gethostname(),
+        'mqtt': socket.gethostname(),
     }
     __custom = dict()
 
@@ -20,6 +21,8 @@ class Config:
             cls.__custom['plugins'] = os.environ['ADAPTER_PLUGINS'].split(',')
         if 'ADAPTER_BASE_URI' in os.environ:
             cls.__custom['base'] = os.environ['ADAPTER_BASE_URI']
+        if 'ADAPTER_MQTT' in os.environ:
+            cls.__custom['mqtt'] = os.environ['ADAPTER_MQTT']
 
     @classmethod
     def get(cls, key):
