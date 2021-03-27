@@ -19,7 +19,18 @@ PLUG = {
                     'htv:methodName': 'PUT',
                 },
             ],
-        }
+        },
+        'power': {
+            'title': 'Power',
+            'description': 'Total power consumption',
+            'readOnly': True,
+            'type': 'integer',
+            'forms': [{
+                'op': 'readproperty',
+                'href': '/properties/power',
+                'htv:methodName': 'GET',
+            }],
+        },
     },
     'actions': {
         'toggle': {

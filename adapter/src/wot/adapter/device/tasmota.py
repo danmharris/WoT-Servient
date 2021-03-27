@@ -66,9 +66,15 @@ class TasmotaDiscovery:
             requests.get(base_uri+'Power%20Toggle')
             return ''
 
+        def read_power():
+            r = requests.get(base_uri+'Status%208')
+            state = r.json()['StatusSNS']['ENERGY']['Power']
+            return jsonify(state)
+
         producer.setPropertyReadHandler('state', read_state)
         producer.setPropertyWriteHandler('state', write_state)
         producer.setActionHandler('toggle', toggle_state)
+        producer.setPropertyReadHandler('power', read_power)
 
         self.app.register_blueprint(producer.blueprint)
         self.schemas.append(producer.schema)
